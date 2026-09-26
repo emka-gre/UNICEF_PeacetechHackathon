@@ -1,18 +1,30 @@
-# Laaha: report it, check it, find help
+# Laaha: extending a safe space to fight gendered disinformation
 
-**UNICEF PeaceTech Hackathon submission**
+**UNICEF challenge · PeaceTech Hackathon 2026 (EPFL EssentialTech Centre)**
 
-Laaha is a mobile web app for women and girls facing gendered misinformation and online harm. It gives them practical tools: report harm, check whether a post is true, find help, call someone, and send their location in an emergency. Every report also becomes an anonymous data point in a moderated dataset about content that no one can currently monitor.
+> **How might we protect women and girls in crisis from gendered disinformation?**
+
+**Laaha already exists.** It is UNICEF's online space where women and girls can find trusted information and support. It has a website and an audience that trusts it. We did not start from zero: our solution **extends Laaha** in three parts.
+
+| Part | What it adds to Laaha | Status |
+|---|---|---|
+| **[1. The Laaha app](#3-part-1-the-laaha-app)** | A new mobile extension: report harm, check what's true, find help, call, SOS, and a discreet mode for women whose phones may be checked | Working prototype |
+| **[2. New features on the Laaha website](#4-part-2-new-features-on-the-laaha-website)** | [To be added] | [To be added] |
+| **[3. Using the collected data](#5-part-3-using-the-collected-data)** | Moderation, anonymised export and an insights page that turns reports into trends and early warnings | Working prototype (synthetic data) |
+
+Every report made through Laaha becomes an anonymous, moderated record about content on platforms that no one can screen today.
 
 > **Prototype.** All partners, helplines and insights data are demo data. Do not collect real reports with this build.
 
-**Jump to:** [Open the demo](#open-the-demo) · [The problem](#1-the-problem) · [Our idea](#2-our-idea) · [Features](#3-features) · [Safety and ethics](#4-safety-privacy-and-ethics) · [Demo script](#6-demo-script) · [What's next](#7-whats-next)
+**Prefer a web page?** Read this summary at **[claude.ai/artifact/JWB8J6KspVsKcXHQNhpqFf](https://claude.ai/artifact/JWB8J6KspVsKcXHQNhpqFf)**.
+
+**Jump to:** [Open the demo](#open-the-demo) · [The problem](#1-the-problem) · [Our idea](#2-our-idea) · [Part 1: App](#3-part-1-the-laaha-app) · [Part 2: Website](#4-part-2-new-features-on-the-laaha-website) · [Part 3: Data](#5-part-3-using-the-collected-data) · [Safety and ethics](#6-safety-privacy-and-ethics) · [Demo script](#8-demo-script) · [What's next](#9-whats-next) · [Team](#10-team)
 
 ---
 
 ## Open the demo
 
-The project has four parts you can open in a browser:
+You can open four things in a browser. The website features in Part 2 are not in this list yet.
 
 | What | Who it's for | Link | Login |
 |---|---|---|---|
@@ -117,7 +129,7 @@ So we don't know which narratives are spreading, who they target, where, or how 
 
 **The women who see the harm become the way we see it.**
 
-The app has to be useful and safe first, so that women trust it enough to use it. Each time someone reports a post, a screenshot or an in-person incident, it adds one anonymous, moderated record that we could not collect any other way. Platform content only enters the dataset when a user submits it. We never scrape.
+Laaha already has the trust of women and girls. We build on that trust instead of asking them to adopt something new. The Laaha app and website have to be useful and safe first, so that women keep coming back. Each time someone reports a post, a screenshot or an in-person incident, it adds one anonymous, moderated record that we could not collect any other way. Platform content only enters the dataset when a user submits it. We never scrape.
 
 ```
 Woman sees harm ──► Report (online or offline, anonymous)
@@ -138,7 +150,10 @@ This data can show:
 - coordinated campaigns (many reports of the same links within hours);
 - **online lures followed by offline harm in the same region**, which only crowdsourced reports can connect.
 
-## 3. Features
+## 3. Part 1: The Laaha app
+
+A new mobile extension of Laaha: an installable web app that works offline and can hide itself on the phone.
+
 
 | Feature | What it does | Status |
 |---|---|---|
@@ -151,8 +166,6 @@ This data can show:
 | Discreet mode | The app disguises itself as a recipe app, notes app or game | Built |
 | Quick exit | Leave the app instantly | Built |
 | Guides and events | Offline safety guides, UN days and community events | Built |
-| Moderation dashboard | Staff review, tagging, stats, anonymised CSV export | Built |
-| Insights page | Analyst view of trends and alerts on a synthetic dataset | Built (synthetic data) |
 | Languages | English, Polish, Ukrainian | Built |
 | Offline | Installable app; reports queue and send when back online | Built |
 
@@ -276,7 +289,28 @@ If someone opens it and looks around, it holds up.
 - **Events**: UN and UNICEF days (International Day of the Girl, 25 November, 16 Days of Activism, Safer Internet Day) and community events. "Add to calendar" creates the calendar file on the phone, without contacting any server.
 - **Languages**: English, Polish and Ukrainian, chosen in Settings.
 
-### 3.9 Moderation dashboard (staff)
+## 4. Part 2: New features on the Laaha website
+
+The app is one way in. Many women will first meet Laaha on its existing website, so we also add features there.
+
+> **[To be added by the team]** Describe each new website feature: what it does, who it helps, and how it connects to the app or to the collected data.
+
+| Feature | What it does | Status |
+|---|---|---|
+| [feature 1] | [what it does] | [status] |
+| [feature 2] | [what it does] | [status] |
+| [feature 3] | [what it does] | [status] |
+
+## 5. Part 3: Using the collected data
+
+Reports are only useful if someone acts on them. This part shows the path from a single report to a decision:
+
+1. **Moderate**: staff check each report and confirm its category.
+2. **Export**: verified reports leave the system as anonymised data, with no contact details.
+3. **Understand**: the insights page shows trends, where harm happens, and early warnings.
+4. **Act**: [to be added: who uses the insights and how, for example UNICEF country offices, partner organisations, platforms, policymakers].
+
+### 5.1 Moderation dashboard (staff)
 
 At `/staff`, Laaha staff can:
 
@@ -286,7 +320,7 @@ At `/staff`, Laaha staff can:
 - see totals and breakdowns;
 - **export an anonymised CSV** for research. Exports never contain contact details.
 
-### 3.10 Insights page (synthetic data)
+### 5.2 Insights page (synthetic data)
 
 `insights-mockup/` shows what the collected data could look like after one year in one country. It uses about **2,500 invented reports** of misinformation and sexualisation aimed at **Ukrainian women living in Poland**, from October 2025 to September 2026, across all 16 voivodeships, in Polish, Ukrainian, Russian and English.
 
@@ -302,7 +336,11 @@ The third pattern is the main argument for this project: **no platform, and no s
 
 The dataset comes with a data card and a ground-truth file, so researchers can test analyses and models without touching real personal data. Every file and the page itself are labelled as synthetic.
 
-## 4. Safety, privacy and ethics
+### 5.3 [To be added]
+
+> **[To be added by the team]** The further part showing how the collected information is used.
+
+## 6. Safety, privacy and ethics
 
 | Principle | How the prototype applies it |
 |---|---|
@@ -317,7 +355,7 @@ The dataset comes with a data card and a ground-truth file, so researchers can t
 | Humans check AI | AI-suggested categories must be confirmed by a moderator before export |
 | Synthetic data stays separate | Demo dataset is labelled everywhere and never mixed with real reports |
 
-## 5. How it is built
+## 7. How it is built
 
 - **App**: React + TypeScript + Vite, as an installable offline web app (PWA). One codebase for Android, iPhone and desktop, with no app store listing that could give the user away.
 - **Server**: Node + Express. Reports are stored in a JSON file for the prototype.
@@ -325,9 +363,9 @@ The dataset comes with a data card and a ground-truth file, so researchers can t
 - **Maps**: Leaflet with OpenStreetMap tiles.
 - **Specs**: every feature is specified with OpenSpec in `openspec/changes/`.
 
-## 6. Demo script
+## 8. Demo script
 
-A 4-minute path through all four parts. Start the app and the insights page first, as shown in [Open the demo](#open-the-demo).
+A 4-minute path through everything you can open. Start the app and the insights page first, as shown in [Open the demo](#open-the-demo).
 
 0. **Report from Instagram.** Open the [clickable mockup](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC), tap the share arrow on the post, choose **Laaha**, and tap **Send now**. On the right, confirm the category and verify the report.
 
@@ -338,11 +376,25 @@ A 4-minute path through all four parts. Start the app and the insights page firs
 5. **Moderate.** Open http://localhost:5173/staff, enter `laaha-demo`, verify the report you just sent, and export the anonymised CSV.
 6. **See the bigger picture.** Open http://localhost:8080 and scroll to **Online lures, offline harm**.
 
-## 7. What's next
+## 9. What's next
 
 1. **Share from Instagram and other apps** (quick report), already specified.
-2. Encrypt data stored on the phone, and add a PIN lock.
-3. Real staff accounts with roles, an audit log, and a real database.
-4. Onboard real partner organisations and helplines, country by country.
-5. A privacy impact assessment and a published privacy notice before any real data is collected.
-6. Later phases: chat with support workers, a safer emergency tracker (after a security review), and sharing verified trends with platforms and policymakers.
+2. Connect the app and the Laaha website: shared content, navigation and entry points.
+3. Encrypt data stored on the phone, and add a PIN lock.
+4. Real staff accounts with roles, an audit log, and a real database.
+5. Onboard real partner organisations and helplines, country by country.
+6. A privacy impact assessment and a published privacy notice before any real data is collected.
+7. Later phases: chat with support workers, a safer emergency tracker (after a security review), and sharing verified trends with platforms and policymakers.
+
+## 10. Team
+
+| Name | Role |
+|---|---|
+| Ema Greganova | |
+| [name2] | |
+| [name3] | |
+| [name4] | |
+| [name5] | |
+| [name6] | |
+| [name7] | |
+| [name8] | |

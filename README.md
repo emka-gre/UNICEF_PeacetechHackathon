@@ -1,10 +1,16 @@
-# Laaha app (hackathon prototype)
+# Laaha extension (hackathon prototype)
 
-A web app (PWA) where women can report gendered misinformation and online harm, find partner organisations, and call helplines or people they trust. It works offline. Laaha staff review reports in a simple moderation dashboard.
+Our answer to the UNICEF challenge at the PeaceTech Hackathon 2026: *How might we protect women and girls in crisis from gendered disinformation?*
+
+Laaha already exists as UNICEF's online space for women and girls. This project extends it in three parts:
+
+1. **The Laaha app**: a new mobile web app (PWA) where women can report gendered disinformation and online harm, check what's true, find partner organisations, and call helplines or people they trust. It works offline and can disguise itself on the phone.
+2. **New features on the Laaha website**: [to be added].
+3. **Using the collected data**: a moderation dashboard, anonymised export, and an insights page that turns reports into trends and early warnings.
 
 **Prototype: demo data only.** Don't collect real reports with this build.
 
-> **Hackathon judges:** start with **[docs/SUBMISSION.md](docs/SUBMISSION.md)**. It explains the idea and every feature, and shows how to open the app, the staff dashboard, the insights page and the [clickable mockup of reporting from Instagram](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC).
+> **Hackathon judges:** start with **[docs/SUBMISSION.md](docs/SUBMISSION.md)**, or read the same summary as a **[web page](https://claude.ai/artifact/JWB8J6KspVsKcXHQNhpqFf)**. It explains the idea and every feature, and shows how to open the app, the staff dashboard, the insights page and the [clickable mockup of reporting from Instagram](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC).
 
 ## Run it
 
@@ -47,3 +53,14 @@ Demo partners and guides are in `server/seed.ts`.
 ## Not in the prototype
 
 Encryption of data on the phone, PIN lock, real staff accounts, an audit log, and a real database. See `openspec/changes/add-nooha-app-foundation/tasks-full.md` for the full plan.
+
+## Team
+
+- Ema Greganova
+- [name2]
+- [name3]
+- [name4]
+- [name5]
+- [name6]
+- [name7]
+- [name8]
