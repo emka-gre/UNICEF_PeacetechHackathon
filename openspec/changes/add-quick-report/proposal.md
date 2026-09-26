@@ -2,7 +2,7 @@
 
 The report form has six steps. For someone who has just seen a harmful post while scrolling, that is often enough friction to give up. We want reporting to take the same effort as sharing a post with a friend, without giving up the anonymity and device safety the app is built around.
 
-We considered letting people send posts to Laaha's Instagram account by direct message. We rejected it because the message stays in the sender's Instagram inbox where someone checking her phone can see it, Laaha would see her Instagram handle, and receiving messages needs Meta app review. Using the phone's own share menu gives the same one-tap gesture without those problems.
+We also considered letting people send posts to Laaha's Instagram account by direct message. It is a natural gesture and suits women who are not at risk from someone checking their phone, such as activists, journalists, or people reporting posts about women in general. It cannot be the default, because the message stays in the sender's Instagram inbox where someone checking her phone can see it, and Laaha would see her Instagram handle. It also needs Meta app review before Laaha can receive messages. So the share menu is the default route, because it gives the same one-tap gesture without those risks, and Instagram DMs are kept as a later, optional channel.
 
 ## What Changes
 
@@ -15,7 +15,8 @@ We considered letting people send posts to Laaha's Instagram account by direct m
 
 ### Out of scope
 
-- Receiving reports through Instagram, WhatsApp or other messaging accounts
+- Receiving reports by Instagram DM. Planned as a later, optional channel for people not at risk, clearly labelled as less private than the app, with DMs going into the same moderation queue. It needs Meta app review first
+- Receiving reports through WhatsApp or other messaging accounts
 - Sharing screenshots directly from the share menu (the first version takes links and text; screenshots are added on the quick report screen)
 - Guessing who was targeted or whether the person is in danger
 

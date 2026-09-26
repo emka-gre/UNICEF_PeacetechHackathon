@@ -119,7 +119,7 @@ Women are targeted with made-up stories, edited photos and deepfakes, coordinate
 
 Organisations like Laaha and UNICEF cannot see this content at scale:
 
-- Platforms give no research access or screening tools for this kind of harm.
+- Platform research access and data tools do exist, but they are paid, expensive, or limited to approved academic researchers. For a humanitarian project like ours, they are out of reach.
 - Scraping breaks platform rules and would collect data from people who never agreed to it.
 - Platform moderation data stays inside the platforms.
 
@@ -128,6 +128,10 @@ So we don't know which narratives are spreading, who they target, where, or how 
 ## 2. Our idea
 
 **The women who see the harm become the way we see it.**
+
+Think of **"Ask for Angela"** in the UK: a woman who feels unsafe in a bar asks the staff for "Angela", and they quietly help her without anyone else noticing. Laaha works the same way online. It is a discreet, trusted place to turn to when gendered disinformation hits. She can pass a harmful post to Laaha as easily as telling a trusted friend, and get facts, support and help in return.
+
+**For women in need anywhere.** Laaha is not built for one country or one group. The emergency number, helplines, partner organisations and languages are set per country, and new languages can be added. Our demo uses one scenario, Ukrainian refugee women in Poland, only as an example.
 
 Laaha already has the trust of women and girls. We build on that trust instead of asking them to adopt something new. The Laaha app and website have to be useful and safe first, so that women keep coming back. Each time someone reports a post, a screenshot or an in-person incident, it adds one anonymous, moderated record that we could not collect any other way. Platform content only enters the dataset when a user submits it. We never scrape.
 
@@ -209,13 +213,24 @@ Today a user pastes the post link into the report form. The next step, fully spe
 4. The server detects the platform from the link, and Claude suggests a category. The report is marked **auto-filled**.
 5. A moderator must confirm the category before the report counts in any export, so guesses never reach research data.
 
-**Why not let women send posts to a Laaha Instagram account by DM?** We considered it and rejected it:
+**Sending a DM to Laaha's Instagram account: an extra option, not the default.** Many women would find it natural to send a harmful post straight to Laaha's Instagram account. It suits women who are **not at risk** from someone checking their phone, such as activists or journalists, or anyone reporting a post about women in general. For them it is the fastest route, inside the app they are already using.
+
+It is not the default, because for a woman at risk it can put her in danger:
 
 - The DM stays in her Instagram inbox, where someone checking her phone would see it.
 - Laaha would learn her Instagram handle, so she would no longer be anonymous.
-- Receiving DMs needs Meta's app review.
 
-The phone's own share menu gives the same one-tap gesture without these risks. iPhones don't support web share targets, so iPhone users get a Quick report button on the home screen instead.
+So the app offers both, and says plainly which one is safer:
+
+| | Share menu → Laaha app (default) | DM to Laaha on Instagram (optional) |
+|---|---|---|
+| Who it's for | Everyone, especially women at risk | Women not at risk from someone checking their phone |
+| Left on her phone | Nothing, unless she keeps a copy | The message stays in her Instagram inbox |
+| Anonymous | Yes | No, Laaha sees her handle |
+| Works in discreet mode | Yes | No |
+| What it needs | No outside approval (installed app on Android; Quick report button on iPhone) | Meta's app review for receiving DMs; Laaha staff to process messages |
+
+DMs would go into the same moderation queue as app reports, marked with where they came from. iPhones don't support web share targets, so iPhone users get a Quick report button on the home screen instead of the share menu.
 
 This is what turns casual scrolling into data collection: a woman who sees a harmful post can report it in two taps without leaving the app she is in.
 
@@ -322,7 +337,7 @@ At `/staff`, Laaha staff can:
 
 ### 5.2 Insights page (synthetic data)
 
-`insights-mockup/` shows what the collected data could look like after one year in one country. It uses about **2,500 invented reports** of misinformation and sexualisation aimed at **Ukrainian women living in Poland**, from October 2025 to September 2026, across all 16 voivodeships, in Polish, Ukrainian, Russian and English.
+`insights-mockup/` shows what the collected data could look like after one year in one country. It uses about **2,500 invented reports** of misinformation and sexualisation aimed at **Ukrainian women living in Poland**, from October 2025 to September 2026, across all 16 voivodeships, in Polish, Ukrainian, Russian and English. Poland is only the example: the same approach works for any country.
 
 The page shows weekly trends by narrative, harm type by platform, regions, who was targeted, and automatic alerts. Three patterns are hidden in the data, and the page finds them:
 
