@@ -5,6 +5,7 @@ import { useOnline } from "../lib/queue";
 import { useDiscreet } from "../lib/safety";
 import { load } from "../lib/storage";
 import { PhoneIcon, PinIcon } from "../icons";
+import { useT } from "../i18n";
 
 interface Contact {
   name: string;
@@ -34,6 +35,7 @@ function whatsappLink(phone: string, body: string) {
 export default function Sos() {
   const discreet = useDiscreet();
   const online = useOnline();
+  const t = useT();
   const emergency = load("emergencyNumber", "112");
   const contacts = load<Contact[]>("contacts", []);
   const [fix, setFix] = useState<Fix | null>(null);
@@ -44,9 +46,7 @@ export default function Sos() {
   function locate() {
     setLocError(null);
     if (!("geolocation" in navigator)) {
-      setLocError(
-        "This phone cannot share its location. You can still send a message or call.",
-      );
+      setLocError(t.sos.noGeo);
       return;
     }
     setLocating(true);
@@ -62,9 +62,7 @@ export default function Sos() {
       },
       (err) => {
         setLocError(
-          err.code === err.PERMISSION_DENIED
-            ? "Location is turned off for this app. Allow it in your browser settings, or send a message without it."
-            : "Could not find your location. Try again outside or near a window, or send a message without it.",
+          err.code === err.PERMISSION_DENIED ? t.sos.denied : t.sos.notFound,
         );
         setLocating(false);
       },
@@ -78,8 +76,12 @@ export default function Sos() {
     fix &&
     `https://maps.google.com/?q=${fix.lat.toFixed(6)},${fix.lng.toFixed(6)}`;
   const message = fix
-    ? `I need help. This is where I am: ${mapUrl} (within about ${Math.round(fix.accuracy)} m, at ${new Date(fix.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}). Please call me or send help.`
-    : "I need help. Please call me or send help.";
+    ? t.sos.message(
+        mapUrl!,
+        Math.round(fix.accuracy),
+        new Date(fix.time).toLocaleTimeString(t.locale, { hour: "2-digit", minute: "2-digit" }),
+      )
+    : t.sos.messageNoFix;
 
   async function share() {
     try {
@@ -101,13 +103,13 @@ export default function Sos() {
 
   return (
     <div className="stack">
-      <h1>{discreet ? "Share location" : "SOS"}</h1>
+      <h1>{discreet ? t.sos.titleDiscreet : t.sos.title}</h1>
 
       {!discreet && (
         <a className="helpline helpline-emergency" href={`tel:${emergency}`}>
           <div>
-            <strong>Emergency services</strong>
-            <span>If you are in danger right now</span>
+            <strong>{t.common.emergencyServices}</strong>
+            <span>{t.common.inDangerNow}</span>
           </div>
           <span className="call-button">
             <PhoneIcon /> {emergency}
@@ -118,13 +120,13 @@ export default function Sos() {
       <section className="card stack sos-location">
         <div className="row between">
           <strong>
-            <PinIcon /> My location
+            <PinIcon /> {t.sos.myLocation}
           </strong>
           <button className="link" onClick={locate} disabled={locating}>
-            {locating ? "Finding…" : "Update"}
+            {locating ? t.sos.finding : t.sos.update}
           </button>
         </div>
-        {locating && !fix && <p className="muted">Finding your location…</p>}
+        {locating && !fix && <p className="muted">{t.sos.findingLong}</p>}
         {locError && <p className="error">{locError}</p>}
         {fix && (
           <>
@@ -132,7 +134,7 @@ export default function Sos() {
               {fix.lat.toFixed(5)}, {fix.lng.toFixed(5)}
               <span className="muted">
                 {" "}
-                · within about {Math.round(fix.accuracy)} m
+                · {t.sos.within(Math.round(fix.accuracy))}
               </span>
             </p>
             {online ? (
@@ -154,30 +156,24 @@ export default function Sos() {
                 />
               </MapContainer>
             ) : (
-              <p className="muted">
-                You are offline, so the map is hidden. Your location still works
-                and can be sent by SMS.
-              </p>
+              <p className="muted">{t.sos.offlineMap}</p>
             )}
           </>
         )}
-        <p className="muted">
-          Your location stays on this phone. It is only sent to the people you
-          choose below.
-        </p>
+        <p className="muted">{t.sos.staysHere}</p>
       </section>
 
-      <h2>{discreet ? "Send to" : "Send my location"}</h2>
+      <h2>{discreet ? t.sos.sendToDiscreet : t.sos.sendTo}</h2>
       <p className="pre sos-message">{message}</p>
 
       {contacts.length === 0 ? (
         <div className="card">
           <p className="muted">
-            You have no {discreet ? "favourites" : "trusted people"} saved yet.{" "}
+            {discreet ? t.sos.noContactsDiscreet : t.sos.noContacts}{" "}
             <Link to="/contacts">
-              {discreet ? "Add someone" : "Add someone you trust"}
+              {discreet ? t.sos.addTrustedDiscreet : t.sos.addTrusted}
             </Link>
-            , or share your location with any app below.
+            {t.sos.orShare}
           </p>
         </div>
       ) : (
@@ -207,16 +203,14 @@ export default function Sos() {
       <div className="row">
         {"share" in navigator && (
           <button className="button danger" onClick={share}>
-            Share with another app
+            {t.sos.shareOther}
           </button>
         )}
         <button className="button ghost" onClick={copy}>
-          {copied ? "Copied" : "Copy message"}
+          {copied ? t.sos.copied : t.sos.copy}
         </button>
       </div>
-      <p className="muted">
-        SMS works without internet. WhatsApp needs a connection.
-      </p>
+      <p className="muted">{t.sos.smsHint}</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import { useOnline, useQueueLength } from './lib/queue';
-import { COVERS, getCover, quickExit, setDiscreet, useDiscreet, useQuickExitShortcut, useUnlocked } from './lib/safety';
+import { getCover, quickExit, setDiscreet, useDiscreet, useQuickExitShortcut, useUnlocked } from './lib/safety';
 import Cover from './pages/Cover';
 import Home from './pages/Home';
 import Report from './pages/Report';
@@ -14,12 +14,14 @@ import Sos from './pages/Sos';
 import Staff from './pages/Staff';
 import './features.css';
 import { GearIcon, HomeIcon, PhoneIcon, PinIcon, ReportIcon, SearchIcon } from './icons';
+import { useT } from './i18n';
 
 export default function App() {
   const discreet = useDiscreet();
   const online = useOnline();
   const queued = useQueueLength();
   const unlocked = useUnlocked();
+  const t = useT();
   const staff = useLocation().pathname.startsWith('/staff');
   useQuickExitShortcut();
 
@@ -31,40 +33,40 @@ export default function App() {
     <div className="app">
       <header className="top">
         <NavLink to="/" className="brand">
-          {discreet ? COVERS[getCover()].name : 'Laaha'}
+          {discreet ? t.covers[getCover()].name : 'Laaha'}
         </NavLink>
         <div className="row">
           {discreet ? (
             // Looks like an ordinary "share location" icon so it doesn't give the app away.
-            <NavLink to="/sos" className="gear" aria-label="Share location">
+            <NavLink to="/sos" className="gear" aria-label={t.app.shareLocation}>
               <PinIcon />
             </NavLink>
           ) : (
-            <NavLink to="/sos" className="sos-button" aria-label="SOS: send my location">
+            <NavLink to="/sos" className="sos-button" aria-label={t.app.sosAria}>
               SOS
             </NavLink>
           )}
-          <NavLink to="/settings" className="gear" aria-label="Settings">
+          <NavLink to="/settings" className="gear" aria-label={t.common.settings}>
             <GearIcon />
           </NavLink>
-          <button className="exit" onClick={quickExit} title={discreet ? 'Lock (or press Esc twice)' : 'Leave now (or press Esc twice)'}>
-            {discreet ? 'Lock' : 'Exit'}
+          <button className="exit" onClick={quickExit} title={discreet ? t.app.lockTitle : t.app.exitTitle}>
+            {discreet ? t.app.lock : t.app.exit}
           </button>
         </div>
         {/* Inside the sticky header so it can never scroll out of sight. */}
         {discreet && (
           <div className="banner discreet-bar">
-            <span>Opens as “{COVERS[getCover()].name}”</span>
+            <span>{t.app.opensAs(t.covers[getCover()].name)}</span>
             <button className="link" onClick={() => setDiscreet(false)}>
-              Turn off
+              {t.app.turnOff}
             </button>
           </div>
         )}
       </header>
 
-      {!online && <div className="banner offline">You are offline. Reports are saved on this phone and sent later.</div>}
-      {queued > 0 && online && <div className="banner">Sending {queued} saved report(s)…</div>}
-      {queued > 0 && !online && <div className="banner">{queued} report(s) waiting to send</div>}
+      {!online && <div className="banner offline">{t.app.offline}</div>}
+      {queued > 0 && online && <div className="banner">{t.app.sending(queued)}</div>}
+      {queued > 0 && !online && <div className="banner">{t.app.waiting(queued)}</div>}
 
       <main>
         <Routes>
@@ -84,23 +86,23 @@ export default function App() {
       <nav className="tabs">
         <NavLink to="/" end>
           <HomeIcon />
-          Home
+          {t.app.tabs.home}
         </NavLink>
         <NavLink to="/report">
           <ReportIcon />
-          {discreet ? 'New' : 'Report'}
+          {discreet ? t.app.tabs.reportDiscreet : t.app.tabs.report}
         </NavLink>
         <NavLink to="/check">
           <SearchIcon />
-          {discreet ? 'Ask' : 'Is it true?'}
+          {discreet ? t.app.tabs.checkDiscreet : t.app.tabs.check}
         </NavLink>
         <NavLink to="/hubs">
           <PinIcon />
-          {discreet ? 'Places' : 'Find help'}
+          {discreet ? t.app.tabs.hubsDiscreet : t.app.tabs.hubs}
         </NavLink>
         <NavLink to="/contacts">
           <PhoneIcon />
-          {discreet ? 'People' : 'Call'}
+          {discreet ? t.app.tabs.contactsDiscreet : t.app.tabs.contacts}
         </NavLink>
       </nav>
     </div>

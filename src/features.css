@@ -136,3 +136,6 @@ label.check > span { flex: 1; min-width: 0; }
 
 /* Plain statement of how reports are used, shown before sending */
 .notice { margin: 0; padding: 0.75rem 1rem; background: var(--brand-soft); border-radius: var(--radius); font-size: 0.92rem; }
+
+/* In-person report: the free-text story box leads the screen */
+textarea.story { min-height: 9rem; font-size: 1rem; line-height: 1.5; }

@@ -4,6 +4,7 @@ import { useBundle } from '../lib/bundle';
 import { useDiscreet } from '../lib/safety';
 import { load, save } from '../lib/storage';
 import { PhoneIcon } from '../icons';
+import { localize, useLang, useT } from '../i18n';
 
 interface Contact {
   name: string;
@@ -17,6 +18,8 @@ const MAX = 5;
 export default function Contacts() {
   const discreet = useDiscreet();
   const { bundle } = useBundle();
+  const t = useT();
+  const lang = useLang();
   const emergency = load('emergencyNumber', '112');
   const [contacts, setContacts] = useState<Contact[]>(() => load('contacts', []));
   const [adding, setAdding] = useState(false);
@@ -39,14 +42,14 @@ export default function Contacts() {
 
   return (
     <div className="stack">
-      <h1>{discreet ? 'People' : 'Call for help'}</h1>
-      <p className="muted">Calls work without internet.</p>
+      <h1>{discreet ? t.contacts.titleDiscreet : t.contacts.title}</h1>
+      <p className="muted">{t.contacts.intro}</p>
 
       {!discreet && (
         <a className="helpline helpline-emergency" href={`tel:${emergency}`}>
           <div>
-            <strong>Emergency services</strong>
-            <span>If you are in danger right now</span>
+            <strong>{t.common.emergencyServices}</strong>
+            <span>{t.common.inDangerNow}</span>
           </div>
           <span className="call-button">
             <PhoneIcon /> {emergency}
@@ -55,38 +58,38 @@ export default function Contacts() {
       )}
       {!discreet && (
         <Link className="sos sos-share" to="/sos">
-          <strong>Send my location to someone I trust</strong>
+          <strong>{t.common.sosShare}</strong>
           <span>SOS</span>
         </Link>
       )}
 
-      <h2>{discreet ? 'Numbers' : 'Helplines'}</h2>
-      {!bundle && <p className="muted">Connect to the internet once to download the helplines.</p>}
-      {bundle?.helplines.map((h) => (
+      <h2>{discreet ? t.contacts.helplinesDiscreet : t.contacts.helplines}</h2>
+      {!bundle && <p className="muted">{t.contacts.connectOnce}</p>}
+      {bundle?.helplines.map((raw) => localize(raw, lang)).map((h) => (
         <article key={h.id} className="card helpline">
           <div>
             <strong>
-              {h.name} {h.demo && <span className="tag">Demo</span>}
+              {h.name} {h.demo && <span className="tag">{t.common.demo}</span>}
             </strong>
             {!discreet && <span>{h.description}</span>}
             <span className="muted">
-              {h.hours} · {h.languages.join(', ')}
-              {h.free && ' · Free call'}
+              {h.hours} · {h.languages.map((l) => t.languageNames[l] ?? l).join(', ')}
+              {h.free && ` · ${t.contacts.freeCall}`}
             </span>
           </div>
-          <a className="call-button" href={`tel:${h.phone}`} aria-label={`Call ${h.name}`}>
-            <PhoneIcon /> Call
+          <a className="call-button" href={`tel:${h.phone}`} aria-label={t.common.callNumber(h.name)}>
+            <PhoneIcon /> {t.common.call}
           </a>
         </article>
       ))}
       {!discreet && (
         <Link to="/hubs" className="link">
-          See all organisations that can help
+          {t.contacts.seeAll}
         </Link>
       )}
 
-      <h2>{discreet ? 'Favourites' : 'People I trust'}</h2>
-      <p className="muted">A friend or family member you can call quickly. Saved only on this phone.</p>
+      <h2>{discreet ? t.contacts.trustedDiscreet : t.contacts.trusted}</h2>
+      <p className="muted">{t.contacts.trustedIntro}</p>
       {contacts.map((c, i) => (
         <div key={i} className="card helpline trusted">
           <div>
@@ -94,38 +97,38 @@ export default function Contacts() {
             <span className="muted">{c.phone}</span>
           </div>
           <div className="row">
-            <a className="call-button" href={`tel:${c.phone}`} aria-label={`Call ${c.name}`}>
-              <PhoneIcon /> Call
+            <a className="call-button" href={`tel:${c.phone}`} aria-label={t.common.callNumber(c.name)}>
+              <PhoneIcon /> {t.common.call}
             </a>
             <button className="link" onClick={() => update(contacts.filter((_, j) => j !== i))}>
-              Remove
+              {t.contacts.remove}
             </button>
           </div>
         </div>
       ))}
 
       {contacts.length >= MAX ? (
-        <p className="muted">You can save up to {MAX} people.</p>
+        <p className="muted">{t.contacts.max(MAX)}</p>
       ) : adding ? (
         <form className="card stack" onSubmit={add}>
           <label>
-            Name
+            {t.contacts.name}
             <input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
           </label>
           <label>
-            Phone number
+            {t.contacts.phone}
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </label>
           <div className="row">
-            <button className="button">Save</button>
+            <button className="button">{t.common.save}</button>
             <button type="button" className="button ghost" onClick={() => setAdding(false)}>
-              Cancel
+              {t.common.cancel}
             </button>
           </div>
         </form>
       ) : (
         <button className="button ghost" onClick={() => setAdding(true)}>
-          Add a person
+          {t.contacts.add}
         </button>
       )}
     </div>

@@ -3,6 +3,7 @@ import { CircleMarker, MapContainer, Popup, TileLayer } from 'react-leaflet';
 import { SERVICES, type Partner } from '../shared';
 import { useBundle } from '../lib/bundle';
 import { useOnline } from '../lib/queue';
+import { localize, useLang, useT } from '../i18n';
 
 function distanceKm(a: [number, number], b: [number, number]) {
   const toRad = (d: number) => (d * Math.PI) / 180;
@@ -15,6 +16,8 @@ function distanceKm(a: [number, number], b: [number, number]) {
 export default function Hubs() {
   const { bundle, error } = useBundle();
   const online = useOnline();
+  const t = useT();
+  const lang = useLang();
   const [q, setQ] = useState('');
   const [service, setService] = useState('');
   const [language, setLanguage] = useState('');
@@ -22,14 +25,14 @@ export default function Hubs() {
   const [me, setMe] = useState<[number, number] | null>(null);
   const [locError, setLocError] = useState<string | null>(null);
 
-  const partners = bundle?.partners ?? [];
+  const partners = useMemo(() => (bundle?.partners ?? []).map((p) => localize(p, lang)), [bundle, lang]);
   const languages = useMemo(() => [...new Set(partners.flatMap((p) => p.languages))].sort(), [partners]);
 
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const list = partners.filter(
       (p) =>
-        (!needle || [p.name, p.address, ...p.services].join(' ').toLowerCase().includes(needle)) &&
+        (!needle || [p.name, p.address, ...p.services, ...p.services.map((s) => t.services[s] ?? '')].join(' ').toLowerCase().includes(needle)) &&
         (!service || p.services.includes(service)) &&
         (!language || p.languages.includes(language)),
     );
@@ -38,56 +41,60 @@ export default function Hubs() {
       list.sort((a, b) => d(a) - d(b));
     }
     return list;
-  }, [partners, q, service, language, me]);
+  }, [partners, q, service, language, me, t]);
 
   // Location is asked for only on tap and never leaves the phone.
   function nearMe() {
     setLocError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => setMe([pos.coords.latitude, pos.coords.longitude]),
-      () => setLocError('Location not available. You can still search by name or city.'),
+      () => setLocError(t.hubs.noLocation),
       { timeout: 10000 },
     );
   }
 
-  if (!bundle) return <p className="stack">{error ?? 'Loading…'}</p>;
+  if (!bundle) return <p className="stack">{error ?? t.common.loading}</p>;
 
   const mapped = results.filter((p) => p.lat != null && p.lng != null);
 
   return (
     <div className="stack">
-      <h1>Find help</h1>
-      <input type="search" placeholder="Search by name, city or service" value={q} onChange={(e) => setQ(e.target.value)} />
+      <h1>{t.hubs.title}</h1>
+      <input type="search" placeholder={t.hubs.search} value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="row">
         <select value={service} onChange={(e) => setService(e.target.value)}>
-          <option value="">All services</option>
+          <option value="">{t.hubs.allServices}</option>
           {SERVICES.map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>
+              {t.services[s] ?? s}
+            </option>
           ))}
         </select>
         <select value={language} onChange={(e) => setLanguage(e.target.value)}>
-          <option value="">All languages</option>
+          <option value="">{t.hubs.allLanguages}</option>
           {languages.map((l) => (
-            <option key={l}>{l}</option>
+            <option key={l} value={l}>
+              {t.languageNames[l] ?? l}
+            </option>
           ))}
         </select>
       </div>
       <div className="row">
         <div className="segmented">
           <button className={view === 'list' ? 'on' : ''} onClick={() => setView('list')}>
-            List
+            {t.hubs.list}
           </button>
           <button className={view === 'map' ? 'on' : ''} onClick={() => setView('map')}>
-            Map
+            {t.hubs.map}
           </button>
         </div>
         <button className="link" onClick={nearMe}>
-          Near me
+          {t.hubs.nearMe}
         </button>
       </div>
       {locError && <p className="error">{locError}</p>}
 
-      {view === 'map' && !online && <p className="muted">The map needs an internet connection. Here is the list instead.</p>}
+      {view === 'map' && !online && <p className="muted">{t.hubs.mapOffline}</p>}
       {view === 'map' && online && (
         <MapContainer
           className="map"
@@ -101,7 +108,7 @@ export default function Hubs() {
               <Popup>
                 <strong>{p.name}</strong>
                 <br />
-                {p.services.join(', ')}
+                {p.services.map((s) => t.services[s] ?? s).join(', ')}
                 <br />
                 {p.phone && <a href={`tel:${p.phone}`}>{p.phone}</a>}
               </Popup>
@@ -113,44 +120,49 @@ export default function Hubs() {
 
       {(view === 'list' || !online) &&
         (results.length === 0 ? (
-          <p className="muted">No results. Try clearing the filters.</p>
+          <p className="muted">{t.hubs.noResults}</p>
         ) : (
           results.map((p) => <PartnerCard key={p.id} p={p} me={me} />)
         ))}
 
-      <small className="muted">Directory updated {new Date(bundle.updatedAt).toLocaleString()}</small>
+      <small className="muted">{t.hubs.updated(new Date(bundle.updatedAt).toLocaleString(t.locale))}</small>
     </div>
   );
 }
 
 function PartnerCard({ p, me }: { p: Partner; me: [number, number] | null }) {
+  const t = useT();
   const km = me && p.lat != null && p.lng != null ? distanceKm(me, [p.lat, p.lng]) : null;
   return (
     <article className="card">
       <strong>
-        {p.name} {p.demo && <span className="tag">Demo</span>}
+        {p.name} {p.demo && <span className="tag">{t.common.demo}</span>}
       </strong>
-      <span>{p.services.join(' · ')}</span>
+      <span>{p.services.map((s) => t.services[s] ?? s).join(' · ')}</span>
       <span className="muted">
         {p.address}
         {km != null && ` · ${km.toFixed(1)} km`}
       </span>
-      <span className="muted">Open: {p.hours}</span>
-      <span className="muted">Languages: {p.languages.join(', ')}</span>
+      <span className="muted">
+        {t.hubs.open} {p.hours}
+      </span>
+      <span className="muted">
+        {t.hubs.languages} {p.languages.map((l) => t.languageNames[l] ?? l).join(', ')}
+      </span>
       <div className="row">
         {p.phone && (
           <a className="button small" href={`tel:${p.phone}`}>
-            Call
+            {t.common.call}
           </a>
         )}
         {p.email && (
           <a className="button small ghost" href={`mailto:${p.email}`}>
-            Email
+            {t.hubs.email}
           </a>
         )}
         {p.website && (
           <a className="button small ghost" href={p.website} target="_blank" rel="noreferrer">
-            Website
+            {t.hubs.website}
           </a>
         )}
       </div>

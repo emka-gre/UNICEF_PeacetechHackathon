@@ -90,7 +90,7 @@ app.post('/api/factcheck', async (req, res) => {
     return res.status(400).json({ error: 'Send between 1 and 20 messages' });
   if (history[history.length - 1].role !== 'user') return res.status(400).json({ error: 'Last message must be from the user' });
   try {
-    res.json(await factCheck(history));
+    res.json(await factCheck(history, typeof req.body?.lang === 'string' ? req.body.lang : 'en'));
   } catch (err) {
     console.error('factcheck failed:', (err as Error).message);
     res.status(502).json({ error: 'The assistant is not available right now. Please try again.' });

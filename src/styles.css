@@ -31,7 +31,7 @@
 
   --radius: 0.75rem;
   --shadow: none;
-  --font-display: 'Arima', Georgia, serif;
+  --font-display: 'Arima', 'Noto Sans', Georgia, serif; /* Arima has no Cyrillic; Noto Sans fills in for Ukrainian */
   --font-body: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   color-scheme: light;
@@ -40,6 +40,8 @@
   background: var(--bg);
   line-height: 1.5;
 }
+/* English headings match laaha.org (Laila). Laila has no Polish ą/ę/ś… or Cyrillic, so Polish and Ukrainian keep Arima + Noto Sans. */
+:root:lang(en) { --font-display: 'Laila', 'Noto Sans', Georgia, serif; }
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
@@ -157,7 +159,7 @@ main { flex: 1; padding: 1.25rem 1rem 6rem; }
 .tile-link:last-child:nth-child(odd) { grid-column: span 2; min-height: 120px; }
 .tile-link strong { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.2; color: var(--text); }
 .tile-link span { font-size: 0.88rem; color: #4a5560; }
-.tile-link::after { content: 'Explore now \2192'; margin-top: auto; padding-top: 0.35rem; font-weight: 600; font-size: 0.9rem; color: var(--brand-dark); }
+.tile-link::after { content: attr(data-more) ' \2192'; /* text set per language in Home.tsx */ margin-top: auto; padding-top: 0.35rem; font-weight: 600; font-size: 0.9rem; color: var(--brand-dark); }
 .tile-link.pink { background: var(--peach); }
 .tile-link.sun { background: #fde9b8; }
 .tile-link.sky { background: #bde5fb; }

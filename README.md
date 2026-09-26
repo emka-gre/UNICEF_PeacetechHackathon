@@ -4,6 +4,8 @@ A web app (PWA) where women can report gendered misinformation and online harm, 
 
 **Prototype: demo data only.** Don't collect real reports with this build.
 
+> **Hackathon judges:** start with **[docs/SUBMISSION.md](docs/SUBMISSION.md)**. It explains the idea and every feature, and shows how to open the app, the staff dashboard, the insights page and the [clickable mockup of reporting from Instagram](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC).
+
 ## Run it
 
 ```bash

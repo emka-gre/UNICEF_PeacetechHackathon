@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReportInput } from '../shared';
 import { load, save } from './storage';
+import { getT } from '../i18n';
 
 // Reports waiting to be sent. Every report goes through this queue, so
 // online and offline submissions follow the same path.
@@ -12,7 +13,7 @@ export function getQueue(): ReportInput[] {
 }
 
 function setQueue(q: ReportInput[]) {
-  if (!save(KEY, q)) throw new Error('Not enough space on this device to save the report');
+  if (!save(KEY, q)) throw new Error(getT().errors.noSpace);
   listeners.forEach((fn) => fn());
 }
 

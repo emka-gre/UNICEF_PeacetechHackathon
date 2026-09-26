@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Laaha Insights · Poland</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap top-row">
+        <div>
+          <h1>Laaha Insights <span class="muted">· Poland</span></h1>
+          <p class="sub">Gendered misinformation and hypersexualisation targeting Ukrainian women</p>
+        </div>
+        <span class="badge" title="Every report on this page is invented by generate.mjs">Synthetic demo data</span>
+      </div>
+      <div class="wrap filters" role="group" aria-label="Filters">
+        <label>Region <select id="f-region"><option value="">All of Poland</option></select></label>
+        <label
+          >Reports
+          <select id="f-mode">
+            <option value="">Online and in person</option>
+            <option value="online">Online</option>
+            <option value="in-person">In person</option>
+          </select>
+        </label>
+        <span class="muted" id="f-count"></span>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section id="missing" class="card" hidden>
+        <h2>No dataset yet</h2>
+        <p>Generate the synthetic dataset, then reload this page:</p>
+        <pre>npm run mock:generate</pre>
+      </section>
+
+      <div id="content" hidden>
+        <section class="tiles" id="tiles" aria-label="Headline figures"></section>
+
+        <section>
+          <h2>What changed</h2>
+          <p class="note">Alerts are worked out from the reports on screen, using the rules in <code>analysis.js</code>.</p>
+          <div id="alerts" class="alerts"></div>
+        </section>
+
+        <section class="card">
+          <h2>Is it growing?</h2>
+          <p class="note">Reports per week. The first and last weeks are partial.</p>
+          <div id="trend" class="chart"></div>
+          <details><summary>Show as table</summary><div id="trend-table"></div></details>
+        </section>
+
+        <section class="card">
+          <h2>Which stories are spreading?</h2>
+          <p class="note">Reports per week by narrative, all on the same scale.</p>
+          <div id="multiples" class="multiples"></div>
+        </section>
+
+        <section class="card">
+          <h2>What kind of harm, where online?</h2>
+          <p class="note">Online reports by category and platform.</p>
+          <div id="heatmap" class="chart"></div>
+        </section>
+
+        <div class="grid2">
+          <section class="card">
+            <h2>Where in Poland?</h2>
+            <p class="note">Reports by voivodeship of the person reporting.</p>
+            <div id="regions" class="chart"></div>
+          </section>
+          <section class="card">
+            <h2>Who was targeted?</h2>
+            <div id="targets" class="chart"></div>
+            <h2 class="spaced">Age of the person targeted</h2>
+            <div id="ages" class="chart"></div>
+          </section>
+        </div>
+
+        <section class="card">
+          <h2>Online lures, offline harm</h2>
+          <p class="note" id="lag-note"></p>
+          <div id="lag" class="chart"></div>
+        </section>
+
+        <section class="card">
+          <h2>For researchers</h2>
+          <p>
+            The full dataset behind this page, ready for pandas, R or a spreadsheet. <strong>All rows are synthetic.</strong> Pattern
+            labels are kept in a separate ground-truth file so a model can be trained on the dataset and scored afterwards.
+          </p>
+          <ul class="downloads">
+            <li><a href="data/laaha-poland-synthetic.csv" download>Dataset (CSV)</a> <span class="muted" id="dl-size"></span></li>
+            <li><a href="data/laaha-poland-synthetic.json" download>Dataset (JSON)</a></li>
+            <li><a href="data/DATA_CARD.md" download>Data card</a> <span class="muted">columns, how it was made, planted patterns, limits</span></li>
+            <li><a href="data/ground-truth.synthetic.csv" download>Ground truth</a> <span class="muted">for scoring only</span></li>
+          </ul>
+        </section>
+
+        <p class="footer muted">
+          Synthetic demo data for a hackathon prototype. Figures are invented and must not be quoted as findings about Poland. Trigger
+          events are fictional. This page shows aggregate patterns only and never scores individual people.
+        </p>
+      </div>
+    </main>
+
+    <div id="tip" class="tip" role="status" hidden></div>
+
+    <script src="data/laaha-poland-synthetic.data.js"></script>
+    <script src="analysis.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

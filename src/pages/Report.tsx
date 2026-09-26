@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  CATEGORY_HINTS,
   DANGER_CATEGORIES,
+  IN_PERSON_CATEGORIES,
   MAX_IMAGES,
   MODES,
+  ONLINE_CATEGORIES,
   PLACES,
   PLATFORMS,
   VICTIMS,
-  categoriesFor,
   isValidUrl,
   type Category,
   type Mode,
@@ -21,16 +21,22 @@ import { stripAndShrink } from '../lib/image';
 import { enqueue } from '../lib/queue';
 import { load, save } from '../lib/storage';
 import { CheckIcon } from '../icons';
+import { useT, type Messages } from '../i18n';
 
 const WHEN = [
-  { label: 'Today', daysAgo: 0 },
-  { label: 'This week', daysAgo: 3 },
-  { label: 'This month', daysAgo: 15 },
-  { label: 'Earlier', daysAgo: 60 },
-  { label: 'Not sure', daysAgo: null },
+  { id: 'today', daysAgo: 0 },
+  { id: 'week', daysAgo: 3 },
+  { id: 'month', daysAgo: 15 },
+  { id: 'earlier', daysAgo: 60 },
+  { id: 'unsure', daysAgo: null },
 ] as const;
+type When = (typeof WHEN)[number]['id'];
 
-const STEPS = ['Online or in person', 'Who', 'What', 'Where', 'Details', 'Send'];
+// Online: one question per screen. In person: one screen to tell the story (steps 2 and 3 are skipped).
+type StepName = keyof Messages['report']['steps'];
+const ONLINE_STEPS: StepName[] = ['mode', 'who', 'what', 'where', 'details', 'send'];
+const IN_PERSON_STEPS: StepName[] = ['mode', 'story', 'more', 'send'];
+const IN_PERSON_INDEX: Record<number, number> = { 0: 0, 1: 1, 4: 2, 5: 3 };
 
 export interface ReportPrefill {
   link?: string;
@@ -56,6 +62,7 @@ export default function Report() {
 }
 
 function ReportForm({ onRestart }: { onRestart: () => void }) {
+  const t = useT();
   const prefill = (useLocation().state ?? {}) as ReportPrefill;
   const fromChat = Boolean(prefill.link || prefill.description);
   // Coming from the fact-check chat means it happened online, so skip the first question.
@@ -68,7 +75,7 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
   const [area, setArea] = useState('');
   const [link, setLink] = useState(prefill.link ?? '');
   const [description, setDescription] = useState(prefill.description ?? '');
-  const [when, setWhen] = useState<string | null>(null);
+  const [when, setWhen] = useState<When | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [consentPartners, setConsentPartners] = useState(false);
   // Off by default: a list of reports on the phone could be seen by someone else.
@@ -83,14 +90,14 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
   };
   const back = () => {
     setError(null);
-    setStep((s) => Math.max(0, s - 1));
+    setStep((s) => (mode === 'in-person' && s === 4 ? 1 : Math.max(0, s - 1)));
   };
 
   async function addFiles(files: FileList | null) {
     if (!files) return;
     setError(null);
     const room = MAX_IMAGES - images.length;
-    if (files.length > room) setError(`You can add up to ${MAX_IMAGES} photos or screenshots.`);
+    if (files.length > room) setError(t.report.tooManyImages(MAX_IMAGES));
     for (const f of Array.from(files).slice(0, room)) {
       try {
         const url = await stripAndShrink(f);
@@ -118,19 +125,26 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
     next();
   }
 
+  function storyNext() {
+    if (!description.trim()) return setError(t.report.errStory);
+    if (!victim) return setError(t.report.errVictim);
+    if (!category) return setError(t.report.errCategory);
+    if (!place) return setError(t.report.errPlace);
+    setError(null);
+    setStep(4);
+  }
+
   function detailsNext() {
     if (online) {
       if (!link.trim() && !description.trim() && images.length === 0)
-        return setError('Add at least one: a link, a screenshot, or a few words.');
-      if (link.trim() && !isValidUrl(link.trim())) return setError('The link should start with https://');
-    } else if (!description.trim() && images.length === 0) {
-      return setError('Tell us in a few words what happened.');
+        return setError(t.report.errEvidence);
+      if (link.trim() && !isValidUrl(link.trim())) return setError(t.report.errLink);
     }
     next();
   }
 
   function send() {
-    const daysAgo = WHEN.find((w) => w.label === when)?.daysAgo;
+    const daysAgo = WHEN.find((w) => w.id === when)?.daysAgo;
     const incidentDate =
       daysAgo == null ? undefined : new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
     const report: ReportInput = {
@@ -168,31 +182,85 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
   return (
     <div className="stack wizard">
-      <div className="progress" aria-label={`Step ${step + 1} of ${STEPS.length}`}>
-        {STEPS.map((s, i) => (
-          <span key={s} className={i < step ? 'done' : i === step ? 'current' : ''} />
-        ))}
-      </div>
+      <Progress steps={(mode === 'in-person' ? IN_PERSON_STEPS : ONLINE_STEPS).map((s) => t.report.steps[s])} current={mode === 'in-person' ? IN_PERSON_INDEX[step] : step} />
 
       {step === 0 && (
         <>
-          <h1>Where did it happen?</h1>
-          <p className="muted">You can report both. Nothing is published.</p>
+          <h1>{t.report.whereTitle}</h1>
+          <p className="muted">{t.report.whereIntro}</p>
           <div className="choices">
             {MODES.map((m) => (
               <button key={m.id} className={`choice ${mode === m.id ? 'on' : ''}`} onClick={() => chooseMode(m.id)}>
-                <strong>{m.label}</strong>
-                <span>{m.hint}</span>
+                <strong>{t.modes[m.id].label}</strong>
+                <span>{t.modes[m.id].hint}</span>
               </button>
             ))}
           </div>
         </>
       )}
 
-      {step === 1 && (
+      {step === 1 && !online && (
         <>
-          <h1>Who was targeted?</h1>
-          <p className="muted">You can stay anonymous. Nothing is published.</p>
+          <h1>{t.report.storyTitle}</h1>
+          <p className="muted">{t.report.storyIntro}</p>
+          <textarea
+            className="story"
+            rows={6}
+            autoFocus
+            placeholder={t.report.storyPlaceholder}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <div>
+            <span className="label">{t.report.whoLabel}</span>
+            <div className="chips">
+              {VICTIMS.map((v) => (
+                <button key={v.id} className={`chip small ${victim === v.id ? 'on' : ''}`} onClick={() => setVictim(v.id)}>
+                  {t.victims[v.id].label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="label">{t.report.whatLabel}</span>
+            <div className="chips">
+              {IN_PERSON_CATEGORIES.map((c) => (
+                <button key={c} className={`chip small ${category === c ? 'on' : ''}`} title={t.categories[c].hint} onClick={() => setCategory(c)}>
+                  {t.categories[c].label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {inDanger && (
+            <a className="helpline helpline-emergency" href={`tel:${emergency}`}>
+              <div>
+                <strong>{t.report.dangerTitle}</strong>
+                <span>{t.report.dangerHint}</span>
+              </div>
+              <span className="call-button">{t.common.callNumber(emergency)}</span>
+            </a>
+          )}
+
+          <div>
+            <span className="label">{t.report.whereLabel}</span>
+            <div className="chips">
+              {PLACES.map((p) => (
+                <button key={p} className={`chip small ${place === p ? 'on' : ''}`} onClick={() => setPlace(p)}>
+                  {t.places[p]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {step === 1 && online && (
+        <>
+          <h1>{t.report.whoTitle}</h1>
+          <p className="muted">{t.report.whoIntro}</p>
           <div className="choices">
             {VICTIMS.map((v) => (
               <button
@@ -203,19 +271,19 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
                   next();
                 }}
               >
-                <strong>{v.label}</strong>
-                {v.hint && <span>{v.hint}</span>}
+                <strong>{t.victims[v.id].label}</strong>
+                {t.victims[v.id].hint && <span>{t.victims[v.id].hint}</span>}
               </button>
             ))}
           </div>
         </>
       )}
 
-      {step === 2 && mode && (
+      {step === 2 && online && (
         <>
-          <h1>What happened?</h1>
+          <h1>{t.report.whatTitle}</h1>
           <div className="choices grid">
-            {categoriesFor(mode).map((c) => (
+            {ONLINE_CATEGORIES.map((c) => (
               <button
                 key={c}
                 className={`choice ${category === c ? 'on' : ''}`}
@@ -224,8 +292,8 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
                   next();
                 }}
               >
-                <strong>{c}</strong>
-                <span>{CATEGORY_HINTS[c]}</span>
+                <strong>{t.categories[c].label}</strong>
+                <span>{t.categories[c].hint}</span>
               </button>
             ))}
           </div>
@@ -234,7 +302,7 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
       {step === 3 && online && (
         <>
-          <h1>Where did you see it?</h1>
+          <h1>{t.report.platformTitle}</h1>
           <div className="chips">
             {PLATFORMS.map((p) => (
               <button
@@ -245,27 +313,7 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
                   next();
                 }}
               >
-                {p}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-
-      {step === 3 && !online && (
-        <>
-          <h1>Where did it happen?</h1>
-          <div className="chips">
-            {PLACES.map((p) => (
-              <button
-                key={p}
-                className={`chip ${place === p ? 'on' : ''}`}
-                onClick={() => {
-                  setPlace(p);
-                  next();
-                }}
-              >
-                {p}
+                {p === 'Other' ? t.platformOther : p}
               </button>
             ))}
           </div>
@@ -274,47 +322,26 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
       {step === 4 && (
         <>
-          <h1>{online ? 'Show us' : 'Tell us what happened'}</h1>
-          {inDanger && (
-            <a className="helpline helpline-emergency" href={`tel:${emergency}`}>
-              <div>
-                <strong>Are you in danger right now?</strong>
-                <span>Call emergency services first. You can finish this report later.</span>
-              </div>
-              <span className="call-button">Call {emergency}</span>
-            </a>
-          )}
-          <p className="muted">{online ? 'Any one of these is enough.' : 'Only share what you feel comfortable with.'}</p>
+          <h1>{online ? t.report.showUs : t.report.anythingElse}</h1>
+          <p className="muted">{online ? t.report.anyOne : t.report.allOptional}</p>
 
           {online && (
             <label>
-              Link to the post
+              {t.report.linkLabel}
               <input type="url" inputMode="url" placeholder="https://instagram.com/p/…" value={link} onChange={(e) => setLink(e.target.value)} />
             </label>
           )}
 
-          {!online && (
-            <label>
-              In a few words *
-              <textarea
-                rows={4}
-                placeholder="What happened? Who was involved (no names needed)? Please don't include other people's phone numbers or addresses."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
-          )}
-
           <label className="upload">
-            {online ? 'Add screenshots' : 'Add photos (optional)'}
+            {online ? t.report.addScreenshots : t.report.addPhotos}
             <input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(e) => addFiles(e.target.files)} />
-            <small className="muted">Location and camera details are removed on your phone.</small>
+            <small className="muted">{t.report.metadataRemoved}</small>
           </label>
           {images.length > 0 && (
             <div className="thumbs">
               {images.map((src, i) => (
-                <button key={i} onClick={() => setImages(images.filter((_, j) => j !== i))} title="Tap to remove">
-                  <img src={src} alt={`Screenshot ${i + 1}`} />
+                <button key={i} onClick={() => setImages(images.filter((_, j) => j !== i))} title={t.report.tapToRemove}>
+                  <img src={src} alt={t.report.screenshotAlt(i + 1)} />
                 </button>
               ))}
             </div>
@@ -322,10 +349,10 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
           {online && (
             <label>
-              In a few words
+              {t.report.fewWords}
               <textarea
                 rows={3}
-                placeholder="What does it say? Please don't include other people's phone numbers or addresses."
+                placeholder={t.report.fewWordsPlaceholder}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -334,17 +361,17 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
           {!online && (
             <label>
-              Which town or area? (optional)
-              <input maxLength={80} placeholder="For example a city or neighbourhood, not an exact address" value={area} onChange={(e) => setArea(e.target.value)} />
+              {t.report.areaLabel}
+              <input maxLength={80} placeholder={t.report.areaPlaceholder} value={area} onChange={(e) => setArea(e.target.value)} />
             </label>
           )}
 
           <div>
-            <span className="label">When?</span>
+            <span className="label">{t.report.whenLabel}</span>
             <div className="chips">
               {WHEN.map((w) => (
-                <button key={w.label} className={`chip small ${when === w.label ? 'on' : ''}`} onClick={() => setWhen(w.label)}>
-                  {w.label}
+                <button key={w.id} className={`chip small ${when === w.id ? 'on' : ''}`} onClick={() => setWhen(w.id)}>
+                  {t.report.when[w.id]}
                 </button>
               ))}
             </div>
@@ -354,69 +381,72 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
 
       {step === 5 && (
         <>
-          <h1>Almost done</h1>
+          <h1>{t.report.almostDone}</h1>
           <div className="summary card">
             <span>
-              <b>How:</b> {online ? 'Online' : 'In person'}
+              <b>{t.report.sumHow}</b> {t.modes[mode!].label}
             </span>
             <span>
-              <b>Who:</b> {VICTIMS.find((v) => v.id === victim)?.label}
+              <b>{t.report.sumWho}</b> {victim && t.victims[victim].label}
             </span>
             <span>
-              <b>What:</b> {category}
+              <b>{t.report.sumWhat}</b> {category && t.categories[category].label}
             </span>
             <span>
-              <b>Where:</b> {online ? platform : [place, area.trim()].filter(Boolean).join(', ')}
-              {when && when !== 'Not sure' && ` · ${when.toLowerCase()}`}
+              <b>{t.report.sumWhere}</b> {online ? (platform === 'Other' ? t.platformOther : platform) : [place && t.places[place], area.trim()].filter(Boolean).join(', ')}
+              {when && when !== 'unsure' && ` · ${t.report.when[when].toLocaleLowerCase(t.locale)}`}
             </span>
             <span>
-              <b>{online ? 'Evidence' : 'Details'}:</b>{' '}
-              {[link && 'link', images.length > 0 && `${images.length} ${online ? 'screenshot(s)' : 'photo(s)'}`, description && 'description']
+              <b>{online ? t.report.sumEvidence : t.report.sumDetails}</b>{' '}
+              {[
+                link && t.report.sumLink,
+                images.length > 0 && (online ? t.report.sumScreenshots(images.length) : t.report.sumPhotos(images.length)),
+                description && t.report.sumDescription,
+              ]
                 .filter(Boolean)
                 .join(', ')}
             </span>
           </div>
 
           <p className="notice">
-            <strong>How we use your report.</strong> Laaha uses every report, without your name or contact details, in anonymous
-            research and advocacy. It helps us show platforms, governments and communities how women are targeted, online and offline.
+            <strong>{t.report.useTitle}</strong> {t.report.useBody}
           </p>
 
           <fieldset>
-            <legend>Share with partner organisations? (optional)</legend>
+            <legend>{t.report.sharePartners}</legend>
             <label className="check">
               <input type="checkbox" checked={consentPartners} onChange={(e) => setConsentPartners(e.target.checked)} />
               <span>
-                Yes, share with partner organisations
-                <small className="muted">For example legal aid, if they can help.</small>
+                {t.report.sharePartnersYes}
+                <small className="muted">{t.report.sharePartnersHint}</small>
               </span>
             </label>
           </fieldset>
 
           <fieldset>
-            <legend>Keep it on this phone?</legend>
+            <legend>{t.report.keepTitle}</legend>
             <label className="check">
               <input type="radio" name="keep" checked={!keepCopy} onChange={() => setKeepCopy(false)} />
               <span>
-                No, don't keep a copy
-                <small className="muted">Safer if someone else might look at your phone.</small>
+                {t.report.keepNo}
+                <small className="muted">{t.report.keepNoHint}</small>
               </span>
             </label>
             <label className="check">
               <input type="radio" name="keep" checked={keepCopy} onChange={() => setKeepCopy(true)} />
               <span>
-                Yes, show it in "My reports"
-                <small className="muted">Only the date, the type and a reference code. You can delete it any time.</small>
+                {t.report.keepYes}
+                <small className="muted">{t.report.keepYesHint}</small>
               </span>
             </label>
           </fieldset>
 
           <details>
-            <summary>Want us to contact you? (optional)</summary>
+            <summary>{t.report.contactTitle}</summary>
             <label>
-              Email
+              {t.report.email}
               <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
-              <small className="muted">Only Laaha staff will see it. Leave empty to stay anonymous.</small>
+              <small className="muted">{t.report.emailHint}</small>
             </label>
           </details>
         </>
@@ -427,19 +457,24 @@ function ReportForm({ onRestart }: { onRestart: () => void }) {
       <div className="row between wizard-nav">
         {step > 0 ? (
           <button className="button ghost" onClick={back}>
-            Back
+            {t.common.back}
           </button>
         ) : (
           <span />
         )}
+        {step === 1 && !online && (
+          <button className="button" onClick={storyNext}>
+            {t.common.next}
+          </button>
+        )}
         {step === 4 && (
           <button className="button" onClick={detailsNext}>
-            Next
+            {t.common.next}
           </button>
         )}
         {step === 5 && (
           <button className="button" onClick={send}>
-            Send report
+            {t.report.sendReport}
           </button>
         )}
       </div>
@@ -469,6 +504,8 @@ function Done({
   info: DoneInfo;
   onRestart: () => void;
 }) {
+  const t = useT();
+  const d = t.report.done;
   const onPlatform = platform != null && platform !== 'Other';
   const emergency = load('emergencyNumber', '112');
   return (
@@ -476,109 +513,109 @@ function Done({
       <div className="done-icon">
         <CheckIcon size={36} />
       </div>
-      <h1>Thank you. You did the right thing.</h1>
-      <p>
-        {info.queued
-          ? "You're offline right now. Your report is kept on this phone only until it can be sent, then removed automatically. You don't need to do anything."
-          : 'Your report has reached Laaha. It will not be published, and the people in it will not be told who reported it.'}
-      </p>
+      <h1>{d.title}</h1>
+      <p>{info.queued ? d.queued : d.sent}</p>
 
       {inDanger && (
         <a className="helpline helpline-emergency" href={`tel:${emergency}`}>
           <div>
-            <strong>If you are in danger, don't wait</strong>
-            <span>Call emergency services now.</span>
+            <strong>{d.dangerTitle}</strong>
+            <span>{d.dangerHint}</span>
           </div>
-          <span className="call-button">Call {emergency}</span>
+          <span className="call-button">{t.common.callNumber(emergency)}</span>
         </a>
       )}
 
       <section className="card">
-        <h2>What happens next</h2>
+        <h2>{d.nextTitle}</h2>
         <ol className="next-steps">
           <li>
-            <strong>A trained moderator reads it</strong>
-            <span>Usually within 3 working days. They check the evidence and whether it is misinformation or harm.</span>
+            <strong>{d.step1}</strong>
+            <span>{d.step1Hint}</span>
           </li>
           <li>
-            <strong>It helps us see the bigger picture</strong>
-            <span>
-              It is counted, without your details, in anonymous data we share with platforms and governments to push for change.
-            </span>
+            <strong>{d.step2}</strong>
+            <span>{d.step2Hint}</span>
           </li>
           <li>
-            <strong>{info.withEmail ? 'We may email you' : 'We will not contact you'}</strong>
-            <span>
-              {info.withEmail
-                ? 'Only if we need more details or can offer help. You can ignore it or reply at any time.'
-                : "You stayed anonymous, so we can't reach you. That's completely fine."}
-            </span>
+            <strong>{info.withEmail ? d.mayEmail : d.noContact}</strong>
+            <span>{info.withEmail ? d.mayEmailHint : d.noContactHint}</span>
           </li>
         </ol>
       </section>
 
       <section className="card">
-        <h2>While you wait</h2>
+        <h2>{d.waitTitle}</h2>
         {mode === 'online' ? (
           <ul className="tips">
-            <li>Don't reply to the post or the people sharing it. Replies often make it spread further.</li>
-            {onPlatform && <li>Report it on {platform} as well, using the post's "Report" option.</li>}
-            <li>Block or mute accounts that are targeting you.</li>
-            <li>Keep your screenshots in case you need them later.</li>
+            <li>{d.onlineTips[0]}</li>
+            {onPlatform && <li>{d.reportOnPlatform(platform)}</li>}
+            {d.onlineTips.slice(1).map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
           </ul>
         ) : (
           <ul className="tips">
-            <li>Write down what happened while you remember it: the date, the place, and anyone who saw it.</li>
-            <li>Keep any messages, photos or medical papers. They can help if you go to the police or a lawyer.</li>
-            <li>Tell someone you trust, and avoid going to that place alone for now if you can.</li>
-            {inDanger && <li>If you were hurt, a doctor or clinic can help, even days later. Legal aid is free at several partners.</li>}
+            {d.inPersonTips.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+            {inDanger && <li>{d.hurtTip}</li>}
           </ul>
         )}
         <Link to="/guides" className="link">
-          More tips in the safety guides
+          {d.moreTips}
         </Link>
       </section>
 
       <p className="muted">
-        Reference: <code>{info.ref}</code>
+        {d.reference} <code>{info.ref}</code>
         <br />
-        {info.kept
-          ? 'Saved in "My reports" on the home screen.'
-          : 'Not saved on this phone. Note the reference if you want to ask about it later.'}
+        {info.kept ? d.kept : d.notKept}
       </p>
 
       {victim === 'me' && (
         <section className="card care">
-          <strong>How are you doing?</strong>
-          <span>What happened to you is not your fault. If you'd like, talk to someone.</span>
+          <strong>{d.careTitle}</strong>
+          <span>{d.careBody}</span>
           <div className="row">
             <Link to="/contacts" className="button small">
-              Call a helpline
+              {d.callHelpline}
             </Link>
             <Link to="/hubs" className="button small ghost">
-              Find help near you
+              {d.findHelp}
             </Link>
           </div>
         </section>
       )}
       {victim === 'someone-i-know' && (
         <section className="card care">
-          <strong>Helping someone you know</strong>
-          <span>Let her know she's not alone, and share this app or a guide with her if it's safe to do so.</span>
+          <strong>{d.otherTitle}</strong>
+          <span>{d.otherBody}</span>
           <Link to="/guides" className="button small ghost">
-            Read the guides
+            {d.readGuides}
           </Link>
         </section>
       )}
 
       <div className="done-actions">
         <button className="button" onClick={onRestart}>
-          Report something else
+          {d.again}
         </button>
         <Link to="/" className="button ghost">
-          Back to home
+          {d.home}
         </Link>
       </div>
+    </div>
+  );
+}
+
+function Progress({ steps, current }: { steps: string[]; current: number }) {
+  const t = useT();
+  return (
+    <div className="progress" aria-label={t.report.progress(current + 1, steps.length, steps[current])}>
+      {steps.map((s, i) => (
+        <span key={s} className={i < current ? 'done' : i === current ? 'current' : ''} />
+      ))}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BUNDLE_VERSION, type Bundle } from '../shared';
 import { load, save } from './storage';
+import { getT } from '../i18n';
 
 const KEY = 'bundle';
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -21,7 +22,7 @@ export function useBundle() {
         setBundle(b);
       })
       .catch(() => {
-        if (!cached) setError('Could not load the directory. Connect to the internet once to download it.');
+        if (!cached) setError(getT().errors.noDirectory);
       });
   }, []);
 

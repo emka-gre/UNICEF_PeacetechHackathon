@@ -5,14 +5,9 @@ import { stripAndShrink } from '../lib/image';
 import { enqueue, useOnline } from '../lib/queue';
 import type { ReportPrefill } from './Report';
 import { CameraIcon } from '../icons';
+import { getLang, useT } from '../i18n';
 
 type Message = ChatTurn & { answer?: FactCheckAnswer };
-
-const EXAMPLES = [
-  'Is it true that this journalist was arrested for lying?',
-  'This photo of a woman politician is going viral. Is it real?',
-  'A post says women who report harassment are lying for attention.',
-];
 
 const VERDICT_CLASS: Record<FactCheckAnswer['verdict'], string> = {
   'Likely false': 'false',
@@ -25,6 +20,7 @@ const VERDICT_CLASS: Record<FactCheckAnswer['verdict'], string> = {
 export default function Check() {
   const online = useOnline();
   const navigate = useNavigate();
+  const t = useT();
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [image, setImage] = useState<string | null>(null);
@@ -49,16 +45,18 @@ export default function Check() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // Only the latest image is sent again; older ones are dropped to keep requests small.
+        // The app language tells the assistant what to answer in when the question itself doesn't (e.g. a lone screenshot).
         body: JSON.stringify({
+          lang: getLang(),
           history: history.map((m, i) => ({ role: m.role, text: m.text, image: i === history.length - 1 ? m.image : undefined })),
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
+      if (!res.ok) throw new Error(data.error);
       const answer = data as FactCheckAnswer;
       setMessages([...history, { role: 'assistant', text: `VERDICT: ${answer.verdict}\n${answer.text}`, answer }]);
-    } catch (e) {
-      setError((e as Error).message);
+    } catch {
+      setError(t.check.failed);
     } finally {
       setBusy(false);
     }
@@ -95,15 +93,12 @@ export default function Check() {
 
   return (
     <div className="stack chat">
-      <h1>Is it true?</h1>
-      <p className="muted">
-        Paste a claim or a link, or add a screenshot. The assistant searches for sources and tells you what it finds. It can be wrong,
-        so check its sources.
-      </p>
+      <h1>{t.check.title}</h1>
+      <p className="muted">{t.check.intro}</p>
 
       {messages.length === 0 && (
         <div className="stack">
-          {EXAMPLES.map((ex) => (
+          {t.check.examples.map((ex) => (
             <button key={ex} className="example" onClick={() => ask(ex)} disabled={!online || busy}>
               “{ex}”
             </button>
@@ -115,7 +110,7 @@ export default function Check() {
         {messages.map((m, i) =>
           m.role === 'user' ? (
             <div key={i} className="bubble user">
-              {m.image && <img src={m.image} alt="Your screenshot" />}
+              {m.image && <img src={m.image} alt={t.check.yourScreenshot} />}
               {m.text}
             </div>
           ) : (
@@ -127,7 +122,7 @@ export default function Check() {
             <span />
             <span />
             <span />
-            <small className="muted">Searching sources…</small>
+            <small className="muted">{t.check.searching}</small>
           </div>
         )}
         <div ref={endRef} />
@@ -137,28 +132,28 @@ export default function Check() {
 
       {lastAnswer && (
         <div className="card escalate">
-          <strong>What next?</strong>
-          <small className="muted">Anything you send to Laaha is used, without your details, in anonymous research.</small>
+          <strong>{t.check.whatNext}</strong>
+          <small className="muted">{t.check.whatNextHint}</small>
           <div className="row">
             <button className="button small" onClick={reportIt}>
-              Report this post
+              {t.check.reportPost}
             </button>
             {escalated ? (
-              <span className="muted">Sent to a Laaha reviewer</span>
+              <span className="muted">{t.check.sentToReviewer}</span>
             ) : (
               <button className="button small ghost" onClick={sendForReview}>
-                Ask a human to check
+                {t.check.askHuman}
               </button>
             )}
             <button className="link" onClick={() => location.assign('/check')}>
-              New question
+              {t.check.newQuestion}
             </button>
           </div>
         </div>
       )}
 
       {!online ? (
-        <p className="banner offline">The assistant needs an internet connection.</p>
+        <p className="banner offline">{t.check.needsInternet}</p>
       ) : (
         <form
           className="composer"
@@ -169,13 +164,13 @@ export default function Check() {
         >
           {image && (
             <div className="thumbs">
-              <button type="button" onClick={() => setImage(null)} title="Remove">
-                <img src={image} alt="Attached screenshot" />
+              <button type="button" onClick={() => setImage(null)} title={t.check.remove}>
+                <img src={image} alt={t.check.attached} />
               </button>
             </div>
           )}
           <div className="row">
-            <label className="attach" title="Add a screenshot">
+            <label className="attach" title={t.check.addScreenshot}>
               <CameraIcon />
               <input
                 type="file"
@@ -194,13 +189,13 @@ export default function Check() {
               />
             </label>
             <input
-              placeholder={messages.length ? 'Ask a follow-up…' : 'Paste a claim or link…'}
+              placeholder={messages.length ? t.check.followUp : t.check.placeholder}
               value={text}
               onChange={(e) => setText(e.target.value)}
               disabled={busy}
             />
             <button className="button" disabled={busy || (!text.trim() && !image)}>
-              Check
+              {t.check.submit}
             </button>
           </div>
         </form>
@@ -210,16 +205,17 @@ export default function Check() {
 }
 
 function Answer({ a }: { a: FactCheckAnswer }) {
+  const t = useT();
   return (
     <div className="bubble bot">
       <div className="row">
-        <span className={`verdict ${VERDICT_CLASS[a.verdict]}`}>{a.verdict}</span>
-        <span className="muted">{a.confidence} confidence</span>
+        <span className={`verdict ${VERDICT_CLASS[a.verdict]}`}>{t.check.verdicts[a.verdict]}</span>
+        <span className="muted">{t.check.confidence[a.confidence]}</span>
       </div>
       <p>{a.text}</p>
       {a.sources.length > 0 && (
         <div className="sources">
-          <small className="muted">Sources</small>
+          <small className="muted">{t.check.sources}</small>
           {a.sources.map((s) => (
             <a key={s.url} href={s.url} target="_blank" rel="noreferrer noopener">
               {s.title || new URL(s.url).hostname}
@@ -227,7 +223,7 @@ function Answer({ a }: { a: FactCheckAnswer }) {
           ))}
         </div>
       )}
-      {a.demo && <small className="muted">Demo mode: the AI isn't connected yet.</small>}
+      {a.demo && <small className="muted">{t.check.demo}</small>}
     </div>
   );
 }

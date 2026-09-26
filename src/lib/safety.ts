@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { load, save } from './storage';
+import { getT, onLangChange } from '../i18n';
 
 const NEUTRAL_PAGE = 'https://www.bbc.com/weather';
 
@@ -32,10 +33,11 @@ export function setDiscreet(on: boolean) {
 /** The fake app shown in discreet mode. The real app is behind the secret code. */
 export type Cover = 'recipes' | 'notes' | 'game';
 
-export const COVERS: Record<Cover, { name: string; icon: string; hint: string }> = {
-  recipes: { name: 'Recipes', icon: '/recipes.svg', hint: 'type your code in the recipe search box' },
-  notes: { name: 'Notes', icon: '/notes.svg', hint: 'type your code in the notes search box' },
-  game: { name: 'Memory', icon: '/game.svg', hint: 'type your code in the "Bonus code" box under the game' },
+// Names and unlock hints are translated: see `covers` in i18n/en.ts.
+export const COVERS: Record<Cover, { icon: string }> = {
+  recipes: { icon: '/recipes.svg' },
+  notes: { icon: '/notes.svg' },
+  game: { icon: '/game.svg' },
 };
 
 export function getCover(): Cover {
@@ -59,10 +61,13 @@ export function setCode(code: string) {
 }
 
 export function applyDiscreet(on: boolean) {
-  const cover = COVERS[getCover()];
-  document.title = on ? cover.name : 'Laaha';
-  document.getElementById('favicon')?.setAttribute('href', on ? cover.icon : '/icon.svg');
+  const cover = getCover();
+  document.title = on ? getT().covers[cover].name : 'Laaha';
+  document.getElementById('favicon')?.setAttribute('href', on ? COVERS[cover].icon : '/icon.svg');
 }
+
+// The cover's name is the page title, so it follows the language.
+onLangChange(() => applyDiscreet(load('discreet', false)));
 
 // Unlocked state lives in sessionStorage, so closing the app locks it again.
 const lockListeners = new Set<(unlocked: boolean) => void>();

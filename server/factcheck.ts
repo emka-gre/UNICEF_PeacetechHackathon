@@ -57,8 +57,10 @@ function parse(text: string, sources: FactCheckAnswer['sources']): FactCheckAnsw
   };
 }
 
-export async function factCheck(history: ChatTurn[]): Promise<FactCheckAnswer> {
-  if (!hasCredentials()) return demoAnswer(history[history.length - 1]);
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', uk: 'Ukrainian', pl: 'Polish' };
+
+export async function factCheck(history: ChatTurn[], lang = 'en'): Promise<FactCheckAnswer> {
+  if (!hasCredentials()) return demoAnswer(history[history.length - 1], lang);
   client ??= new Anthropic();
 
   const messages = toMessages(history);
@@ -73,7 +75,7 @@ export async function factCheck(history: ChatTurn[]): Promise<FactCheckAnswer> {
       fallbacks: 'default',
       thinking: { type: 'adaptive' },
       output_config: { effort: 'medium' },
-      system: SYSTEM,
+      system: `${SYSTEM}\n- The app is set to ${LANGUAGE_NAMES[lang] ?? 'English'}. Use that language when the user's own language is unclear, for example when they only send a screenshot.`,
       tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 5 }],
       messages,
     });
@@ -86,7 +88,7 @@ export async function factCheck(history: ChatTurn[]): Promise<FactCheckAnswer> {
     return {
       verdict: 'Unverified',
       confidence: 'low',
-      text: "I can't help with this one. You can still send it to a Laaha reviewer below.",
+      text: cannedText(lang).refusal,
       sources: [],
     };
   }
@@ -109,38 +111,46 @@ export async function factCheck(history: ChatTurn[]): Promise<FactCheckAnswer> {
   return parse(text, sources);
 }
 
-/** Canned answers so the demo works without an API key. */
-function demoAnswer(last: ChatTurn | undefined): FactCheckAnswer {
+/** Fixed texts in each app language: demo answers (no API key) and the refusal message. */
+const CANNED_TEXT = {
+  en: {
+    image: `I can't check images in demo mode. Things to look for yourself: blurry or warped edges around the face, lighting that doesn't match, and whether the same picture appears elsewhere online with a different story (try a reverse image search). If this image is being used to shame or threaten someone, please report it.`,
+    media: `Images and videos about women are often edited or taken out of context to shame them. Check if the image appeared earlier with a different caption, whether the account that posted it is new, and whether any trusted news outlet reports the same thing. Until then, treat it as unverified and don't share it.`,
+    scandal: `Claims like this are a common way to discredit women in public life. I found no reliable source in demo mode. Look for the same story in established news outlets, and be careful with posts that only cite "sources say" or anonymous accounts.`,
+    other: `Demo mode: the AI assistant isn't connected, so I can't search the web. Tips: check who first posted it, whether trusted outlets report it, and whether the post uses emotional language to push you to share quickly. You can send this to a Laaha reviewer below.`,
+    refusal: "I can't help with this one. You can still send it to a Laaha reviewer below.",
+  },
+  uk: {
+    image: `У демо-режимі я не можу перевіряти зображення. На що звернути увагу самостійно: розмиті чи викривлені краї навколо обличчя, освітлення, яке не збігається, і чи не з’являлося це фото деінде в мережі з іншою історією (спробуйте зворотний пошук зображень). Якщо це фото використовують, щоб присоромити когось чи погрожувати, будь ласка, повідомте про це.`,
+    media: `Фото й відео про жінок часто редагують або виривають з контексту, щоб присоромити їх. Перевірте, чи не з’являлося це зображення раніше з іншим підписом, чи новий акаунт, який його опублікував, і чи пишуть про це надійні медіа. Доти вважайте це непідтвердженим і не поширюйте.`,
+    scandal: `Такі твердження — поширений спосіб дискредитувати жінок у публічному житті. У демо-режимі я не знайшов надійних джерел. Пошукайте цю історію у відомих медіа й обережно ставтеся до дописів, які посилаються лише на «джерела кажуть» або на анонімні акаунти.`,
+    other: `Демо-режим: ШІ-помічника не підключено, тож я не можу шукати в інтернеті. Поради: перевірте, хто першим це опублікував, чи пишуть про це надійні медіа і чи не тисне допис на емоції, щоб ви швидше ним поділилися. Нижче можна надіслати це фахівцю Laaha.`,
+    refusal: 'Тут я не можу допомогти. Ви все одно можете надіслати це фахівцю Laaha нижче.',
+  },
+  pl: {
+    image: `W trybie demo nie mogę sprawdzać zdjęć. Na co zwrócić uwagę samodzielnie: rozmyte lub zniekształcone krawędzie wokół twarzy, niepasujące oświetlenie i to, czy to samo zdjęcie pojawia się gdzie indziej w sieci z inną historią (spróbuj wyszukiwania obrazem). Jeśli to zdjęcie służy do zawstydzania lub zastraszania kogoś, zgłoś je.`,
+    media: `Zdjęcia i filmy przedstawiające kobiety są często przerabiane lub wyrywane z kontekstu, by je zawstydzić. Sprawdź, czy zdjęcie pojawiło się wcześniej z innym podpisem, czy konto, które je opublikowało, jest nowe i czy piszą o tym wiarygodne media. Do tego czasu traktuj je jako niezweryfikowane i nie udostępniaj go.`,
+    scandal: `Takie twierdzenia to częsty sposób na dyskredytowanie kobiet w życiu publicznym. W trybie demo nie znalazłem wiarygodnego źródła. Poszukaj tej historii w uznanych mediach i uważaj na posty, które powołują się tylko na „źródła” lub anonimowe konta.`,
+    other: `Tryb demo: asystent AI nie jest podłączony, więc nie mogę przeszukiwać sieci. Wskazówki: sprawdź, kto pierwszy to opublikował, czy piszą o tym wiarygodne media i czy post gra na emocjach, żeby skłonić cię do szybkiego udostępnienia. Poniżej możesz wysłać to do weryfikatora Laaha.`,
+    refusal: 'Tu nie mogę pomóc. Nadal możesz wysłać to do weryfikatora Laaha poniżej.',
+  },
+};
+type CannedLang = keyof typeof CANNED_TEXT;
+const cannedText = (lang: string) => CANNED_TEXT[(lang in CANNED_TEXT ? lang : 'en') as CannedLang];
+
+/** Canned answers so the demo works without an API key. Keywords cover English, Ukrainian and Polish. */
+function demoAnswer(last: ChatTurn | undefined, lang: string): FactCheckAnswer {
   const q = (last?.text ?? '').toLowerCase();
+  const text = cannedText(lang);
   const base = { demo: true, sources: [] as FactCheckAnswer['sources'] };
   if (last?.image) {
-    return {
-      ...base,
-      verdict: 'Unverified',
-      confidence: 'low',
-      text: `I can't check images in demo mode. Things to look for yourself: blurry or warped edges around the face, lighting that doesn't match, and whether the same picture appears elsewhere online with a different story (try a reverse image search). If this image is being used to shame or threaten someone, please report it.`,
-    };
+    return { ...base, verdict: 'Unverified', confidence: 'low', text: text.image };
   }
-  if (/(photo|image|picture|video|deepfake|edited)/.test(q)) {
-    return {
-      ...base,
-      verdict: 'Misleading',
-      confidence: 'low',
-      text: `Images and videos about women are often edited or taken out of context to shame them. Check if the image appeared earlier with a different caption, whether the account that posted it is new, and whether any trusted news outlet reports the same thing. Until then, treat it as unverified and don't share it.`,
-    };
+  if (/(photo|image|picture|video|deepfake|edited|фото|зображ|світлин|відео|діпфейк|zdjęci|obraz|wideo|film|przerobion)/.test(q)) {
+    return { ...base, verdict: 'Misleading', confidence: 'low', text: text.media };
   }
-  if (/(arrest|scandal|affair|fired|caught|leaked)/.test(q)) {
-    return {
-      ...base,
-      verdict: 'Unverified',
-      confidence: 'low',
-      text: `Claims like this are a common way to discredit women in public life. I found no reliable source in demo mode. Look for the same story in established news outlets, and be careful with posts that only cite "sources say" or anonymous accounts.`,
-    };
+  if (/(arrest|scandal|affair|fired|caught|leaked|арешт|заарешт|скандал|роман|звільн|злив|aresztow|skandal|romans|zwolnion|wyciek)/.test(q)) {
+    return { ...base, verdict: 'Unverified', confidence: 'low', text: text.scandal };
   }
-  return {
-    ...base,
-    verdict: 'Unverified',
-    confidence: 'low',
-    text: `Demo mode: the AI assistant isn't connected, so I can't search the web. Tips: check who first posted it, whether trusted outlets report it, and whether the post uses emotional language to push you to share quickly. You can send this to a Laaha reviewer below.`,
-  };
+  return { ...base, verdict: 'Unverified', confidence: 'low', text: text.other };
 }

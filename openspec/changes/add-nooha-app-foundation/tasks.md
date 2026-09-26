@@ -40,6 +40,7 @@
 - [x] 7.4 Let the user choose on the last step whether to keep a copy of the report in "My reports" on the phone (default: no), and delete saved entries from Home; verify nothing is added to history when "No" is chosen
 - [x] 7.5 Replace the research-consent checkbox with a plain notice that every report is used anonymously in research; keep partner sharing as an optional choice; verify sent reports record research use as true
 - [x] 7.6 Start the report form with "Online or in person?" and adapt categories, place/platform, details and after-send tips to the answer; show an emergency call prompt for danger categories; verify in-person reports without a place or with a link are rejected and the area is left out of exports
+- [x] 7.7 For in-person reports, open with a free-text "Tell us what happened" box and put the who / what / where choices under it on the same screen, followed by an optional details step; verify Next is blocked until the text and all three choices are filled
 
 ## 8. Fact-check assistant (pulled forward from Phase 2)
 

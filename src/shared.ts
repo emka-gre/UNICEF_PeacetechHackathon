@@ -116,13 +116,18 @@ export interface Partner {
   email?: string;
   website?: string;
   demo?: boolean;
+  translations?: Translations<Pick<Partner, 'name' | 'address' | 'hours'>>;
 }
+
+/** Translated text fields by language code ("uk", "pl"). Missing fields fall back to English. */
+export type Translations<T> = Record<string, Partial<T>>;
 
 export interface Guide {
   id: string;
   title: string;
   summary: string;
   body: string;
+  translations?: Translations<Pick<Guide, 'title' | 'summary' | 'body'>>;
 }
 
 export interface Helpline {
@@ -134,10 +139,11 @@ export interface Helpline {
   languages: string[];
   free?: boolean;
   demo?: boolean;
+  translations?: Translations<Pick<Helpline, 'name' | 'description' | 'hours'>>;
 }
 
 /** Bump when the bundle shape changes so phones re-download it. */
-export const BUNDLE_VERSION = 2;
+export const BUNDLE_VERSION = 3;
 
 export interface Bundle {
   version: number;
