@@ -1,0 +1,138 @@
+/* Feature-specific styles. The design system (tokens, cards, buttons, wizard) lives in styles.css. */
+
+/* Header settings icon */
+.gear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.3rem; height: 2.3rem; border-radius: 999px;
+  color: var(--muted); text-decoration: none; font-size: 1.25rem;
+}
+.gear.active, .gear:hover { background: var(--brand-soft); color: var(--brand); }
+.gear svg { width: 22px; height: 22px; }
+
+/* Tabs with icons */
+.tabs a { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+.tabs a svg { width: 22px; height: 22px; flex: none; }
+.done-icon svg { display: block; }
+
+/* Emergency call strip on Home */
+.sos {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  background: var(--danger); color: #fff; text-decoration: none;
+  border-radius: var(--radius); padding: 0.8rem 1.1rem; box-shadow: var(--shadow);
+}
+.sos span { background: #fff; color: var(--danger); font-weight: 700; border-radius: 999px; padding: 0.35rem 0.9rem; white-space: nowrap; }
+
+.pre { white-space: pre-line; }
+
+/* Fact-check chat */
+.chat { padding-bottom: 5rem; }
+.example {
+  text-align: left; background: var(--card); border: 1px dashed var(--border); border-radius: var(--radius);
+  padding: 0.75rem 1rem; font: inherit; color: var(--text); cursor: pointer;
+}
+.example:hover:not(:disabled) { border-color: var(--brand); background: var(--brand-soft); }
+.example:disabled { opacity: 0.5; cursor: default; }
+
+.messages { display: flex; flex-direction: column; gap: 0.75rem; }
+.bubble {
+  max-width: 88%; padding: 0.75rem 1rem; border-radius: var(--radius);
+  display: flex; flex-direction: column; gap: 0.4rem; word-wrap: break-word; overflow-wrap: anywhere;
+}
+.bubble p { margin: 0; white-space: pre-line; }
+.bubble.user { align-self: flex-end; background: var(--brand); color: #fff; border-bottom-right-radius: 0.3rem; }
+.bubble.user img { max-width: 180px; border-radius: 0.6rem; }
+.bubble.bot { align-self: flex-start; background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-bottom-left-radius: 0.3rem; }
+
+.bubble.typing { flex-direction: row; align-items: center; gap: 0.3rem; }
+.bubble.typing > span { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--brand); opacity: 0.4; animation: blink 1.2s infinite; }
+.bubble.typing > span:nth-child(2) { animation-delay: 0.2s; }
+.bubble.typing > span:nth-child(3) { animation-delay: 0.4s; }
+.bubble.typing small { margin-left: 0.4rem; }
+@keyframes blink { 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bubble.typing > span { animation: none; opacity: 0.8; } }
+
+.verdict { font-weight: 700; font-size: 0.85rem; border-radius: 999px; padding: 0.2rem 0.7rem; }
+.verdict.false { background: var(--brand-soft); color: var(--brand-dark); }
+.verdict.misleading { background: var(--peach); color: var(--peach-ink); }
+.verdict.unverified { background: var(--sun); color: var(--sun-ink); }
+.verdict.true { background: var(--mint); color: var(--mint-ink); }
+
+.sources { display: flex; flex-direction: column; gap: 0.2rem; border-top: 1px solid var(--border); padding-top: 0.4rem; }
+.sources a { font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.escalate { background: var(--blush); }
+
+.composer {
+  position: sticky; bottom: 4.6rem; background: var(--bg); padding: 0.5rem 0;
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+.composer .row { flex-wrap: nowrap; }
+.attach {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 2.8rem; height: 2.8rem; border-radius: 999px; background: var(--card); border: 1px solid var(--border);
+  cursor: pointer; font-size: 1.2rem;
+}
+
+/* Call for help */
+.helpline {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  text-decoration: none; color: inherit;
+}
+.helpline > div:first-child { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.helpline-emergency {
+  background: var(--danger); color: #fff; border-radius: var(--radius);
+  padding: 1rem 1.1rem; box-shadow: var(--shadow);
+}
+.helpline-emergency strong { font-size: 1.1rem; }
+.helpline-emergency .call-button { background: #fff; color: var(--danger); box-shadow: none; }
+.call-button {
+  display: inline-flex; align-items: center; gap: 0.4rem; flex: none;
+  background: var(--brand); color: #fff; border-radius: 999px; padding: 0.55rem 1rem;
+  font-weight: 700; text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(201, 79, 27, 0.25);
+}
+.call-button:hover { background: var(--brand-dark); }
+.call-button svg { width: 18px; height: 18px; }
+.trusted { background: var(--blush); }
+@media (max-width: 400px) {
+  .helpline { flex-direction: column; align-items: stretch; }
+  .call-button { justify-content: center; }
+}
+
+/* Report confirmation */
+.next-steps { margin: 0.25rem 0 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.next-steps li::marker { color: var(--brand); font-weight: 700; }
+.next-steps li strong, .next-steps li span { display: block; }
+.next-steps li span { color: var(--muted); font-size: 0.92rem; }
+.tips { margin: 0.25rem 0 0.4rem; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.done h2 { font-size: 1.15rem; margin: 0; }
+.done-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.done-actions .button { flex: 1 1 12rem; text-align: center; }
+
+/* SOS: header button + share-location page */
+.sos-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 2.3rem; padding: 0 0.9rem; border-radius: 999px;
+  background: var(--danger); color: #fff; font-weight: 800; letter-spacing: 0.06em; text-decoration: none;
+  box-shadow: 0 2px 8px rgba(179, 38, 30, 0.35);
+}
+.sos-button:hover, .sos-button.active { background: #8f1d17; }
+.sos.sos-share { background: var(--card); color: var(--danger); border: 1.5px solid var(--danger); }
+.sos.sos-share span { background: var(--danger); color: #fff; }
+.sos-location strong { display: inline-flex; align-items: center; gap: 0.35rem; }
+.sos-location strong svg { color: var(--danger); }
+.sos-coords { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sos-map { height: 220px; }
+.sos-message { margin: 0; background: var(--blush); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 0.92rem; overflow-wrap: anywhere; }
+
+/* Checkbox and radio labels: text wraps beside the control. */
+label.check { gap: 0.6rem; }
+label.check > span { flex: 1; min-width: 0; }
+
+/* Unlocked app in discreet mode: one-tap way to switch the cover off */
+.top:has(.discreet-bar) { flex-wrap: wrap; padding-bottom: 0; }
+.discreet-bar { display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-basis: calc(100% + 2rem); margin: 0.6rem -1rem 0; }
+.discreet-bar .link { color: inherit; text-decoration: underline; font-size: 0.9rem; }
+
+/* Plain statement of how reports are used, shown before sending */
+.notice { margin: 0; padding: 0.75rem 1rem; background: var(--brand-soft); border-radius: var(--radius); font-size: 0.92rem; }

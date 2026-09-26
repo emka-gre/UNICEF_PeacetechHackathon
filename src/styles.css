@@ -1,0 +1,308 @@
+/* Design follows laaha.org (UNICEF): white pages, slate text, Arima headings, grey hero, full-width
+   colour bands, flat pastel cards with centred text, yellow action bar, red square Exit button.
+   The accent colour is orange instead of Laaha's pink (user preference). */
+:root {
+  --brand: #c94f1b;        /* burnt orange: white text on it passes AA (4.5:1) */
+  --brand-bright: #f08a4b; /* decorative only (bars, gradients), never behind text */
+  --brand-dark: #a63d15;
+  --brand-soft: #ffe8da;
+  --blush: #fff7f1;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --text: #363e44;         /* Laaha slate */
+  --muted: #5a6872;
+  --border: #e9ebed;
+  --danger: #b3261e;
+  --exit: #cc0000;         /* Laaha's Exit red */
+  --grey: #f6f6f6;         /* Laaha hero background */
+  --yellow: #ffbe21;       /* Laaha action yellow */
+
+  /* Pastel accents (Laaha learning-path colours) */
+  --sun: #fff4d6;
+  --sun-ink: #7a5200;
+  --sky: #d7f0fe;
+  --sky-ink: #1b5c86;
+  --mint: #dff6ee;
+  --mint-ink: #1e6b4f;
+  --peach: #ffdfd1;
+  --peach-ink: #a63d15;
+  --lilac: #e5e7fb;
+  --lilac-ink: #3f4596;
+
+  --radius: 0.75rem;
+  --shadow: none;
+  --font-display: 'Arima', Georgia, serif;
+  --font-body: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.2; color: var(--text); }
+h1 { font-size: 1.9rem; margin: 0.25rem 0; }
+h2 { font-size: 1.6rem; margin: 1rem 0 0.25rem; }
+a { color: var(--brand-dark); }
+code { background: var(--brand-soft); color: var(--brand-dark); padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 1.1rem; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+.app { max-width: 640px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+main { flex: 1; padding: 1.25rem 1rem 6rem; }
+
+/* Header: white bar, orange wordmark, red square Exit like Laaha's "EXIT WEBSITE" */
+.top {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 1rem 0.6rem;
+  background: var(--card); border-bottom: 1px solid var(--border);
+}
+.brand {
+  color: var(--brand); font-family: var(--font-body); font-weight: 500; font-size: 1.85rem;
+  text-decoration: none; letter-spacing: -0.01em; line-height: 1;
+}
+.exit {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: var(--exit); color: #fff; border: 0; border-radius: 4px;
+  padding: 0.55rem 0.9rem; font: inherit; font-weight: 600; font-size: 0.85rem;
+  text-transform: uppercase; letter-spacing: 0.03em; cursor: pointer;
+}
+.exit::before { content: '\2715'; font-size: 0.9rem; }
+.exit:hover { background: #a30000; }
+
+.banner { background: var(--sun); color: var(--sun-ink); padding: 0.55rem 1rem; font-size: 0.9rem; text-align: center; }
+.banner.offline { background: var(--text); color: #fff; }
+
+/* Bottom bar: Laaha's yellow action bar */
+.tabs {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; justify-content: center; gap: 0.25rem;
+  background: var(--yellow); border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.45rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+}
+.tabs a {
+  flex: 1; max-width: 128px; text-align: center; padding: 0.5rem 0.25rem; border-radius: 0.6rem;
+  color: var(--text); text-decoration: none; font-size: 0.8rem; font-weight: 600;
+}
+.tabs a.active { background: rgba(255, 255, 255, 0.85); color: var(--brand-dark); }
+
+/* Layout helpers */
+.stack { display: flex; flex-direction: column; gap: 0.9rem; }
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.between { justify-content: space-between; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+.error { color: var(--danger); font-weight: 600; margin: 0; }
+.prototype {
+  align-self: flex-start; font-size: 0.75rem; font-weight: 600;
+  background: var(--sun); color: var(--sun-ink); padding: 0.25rem 0.75rem; border-radius: 999px;
+}
+.tag { font-size: 0.7rem; font-weight: 600; background: var(--sun); color: var(--sun-ink); padding: 0.1rem 0.5rem; border-radius: 4px; vertical-align: middle; }
+
+/* Full-width sections: cancel main's side padding, like Laaha's edge-to-edge bands */
+.hero, .help-band, .search-band, .band, .site-footer { margin-left: -1rem; margin-right: -1rem; border-radius: 0; }
+
+/* Consecutive bands touch, as on laaha.org (cancel the .stack gap between them) */
+.hero + .help-band, .help-band + .search-band, .hero + .search-band { margin-top: -0.9rem; }
+
+/* Hero: Laaha's grey banner with a big slate heading and a decorative illustration shape */
+.hero {
+  position: relative; overflow: hidden;
+  background: var(--grey); padding: 2rem 1rem 2.25rem; display: flex; flex-direction: column; gap: 0.75rem;
+}
+.hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
+.hero::before { width: 150px; height: 150px; right: -60px; top: -70px; background: var(--peach); }
+.hero::after { width: 40px; height: 40px; right: 38px; top: 12px; background: var(--yellow); }
+.hero > * { position: relative; z-index: 1; }
+.hero h1 { font-size: 2.3rem; max-width: 14ch; }
+.hero p { margin: 0; color: var(--muted); font-size: 1rem; max-width: 34rem; }
+.hero .button { align-self: flex-start; margin-top: 0.25rem; }
+
+/* "If you or someone needs help" band with a yellow button */
+.help-band {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;
+  background: var(--brand); color: #fff; padding: 1.4rem 1rem; text-decoration: none; font-size: 1.05rem;
+}
+.help-band p { margin: 0; }
+
+/* Search pill on a blush band */
+.search-band { background: var(--blush); padding: 1.5rem 1rem; }
+.search-pill {
+  display: flex; align-items: center; gap: 0.6rem; width: 100%;
+  background: #fff; border: 3px solid var(--brand); border-radius: 999px;
+  padding: 0.7rem 1rem; color: var(--muted); text-decoration: none; font: inherit; text-align: left;
+}
+.search-pill svg { width: 20px; height: 20px; color: var(--text); flex: none; }
+
+/* Coloured bands with white cards inside (Laaha's "How Laaha can help you") */
+.band { padding: 1.25rem 1rem 1.5rem; display: flex; flex-direction: column; gap: 0.9rem; }
+.band.sky { background: var(--sky); }
+.band.peach { background: var(--peach); border-radius: 1rem; margin-left: 0; margin-right: 0; }
+.band h2 { margin-top: 0; }
+
+.site-footer { background: var(--blush); padding: 1.5rem 1rem; margin-bottom: -6rem; padding-bottom: 7rem; }
+.site-footer .brand { font-size: 1.6rem; }
+
+/* Home topic cards: Laaha "learning path" cards, flat pastel, centred text, "Explore now" link */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.tile-link {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  min-height: 150px; text-align: center;
+  border-radius: var(--radius); padding: 1.25rem 0.9rem; text-decoration: none; color: var(--text);
+  transition: transform 0.15s ease;
+}
+.tile-link:hover { transform: translateY(-2px); }
+.tile-link:last-child:nth-child(odd) { grid-column: span 2; min-height: 120px; }
+.tile-link strong { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.2; color: var(--text); }
+.tile-link span { font-size: 0.88rem; color: #4a5560; }
+.tile-link::after { content: 'Explore now \2192'; margin-top: auto; padding-top: 0.35rem; font-weight: 600; font-size: 0.9rem; color: var(--brand-dark); }
+.tile-link.pink { background: var(--peach); }
+.tile-link.sun { background: #fde9b8; }
+.tile-link.sky { background: #bde5fb; }
+.tile-link.peach { background: var(--lilac); }
+.tile-link.mint { background: #d4f1e4; }
+/* Events shares .sky in the markup with Find help; give it its own warm sand tone */
+.tile-link[href='/events'] { background: #f6ecdf; }
+
+/* Cards: flat, Laaha style */
+.card {
+  display: flex; flex-direction: column; gap: 0.35rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1rem 1.1rem; color: inherit; text-decoration: none; box-shadow: var(--shadow);
+}
+.card strong { font-weight: 700; }
+.card.big strong { font-family: var(--font-display); font-size: 1.2rem; color: var(--brand-dark); }
+.card.care { background: var(--brand-soft); border-color: transparent; }
+.call { text-decoration: none; color: inherit; }
+
+/* Forms */
+label { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 0.95rem; }
+label.check { flex-direction: row; align-items: flex-start; font-weight: 500; }
+label.check > span { display: flex; flex-direction: column; }
+fieldset {
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--card);
+  padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.6rem;
+}
+legend { font-weight: 700; padding: 0 0.4rem; }
+input:not([type='checkbox']):not([type='radio']):not([type='file']), select, textarea {
+  font: inherit; font-weight: 400; padding: 0.7rem 0.9rem; border: 1.5px solid #d5dade;
+  border-radius: 0.5rem; background: #fff; color: var(--text); width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.row select { width: auto; flex: 1; min-width: 140px; }
+.row input { flex: 1; }
+input[type='checkbox'], input[type='radio'] { width: 1.2rem; height: 1.2rem; accent-color: var(--brand); flex-shrink: 0; margin-top: 0.15rem; }
+details { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem; }
+details[open] summary { margin-bottom: 0.6rem; }
+summary { cursor: pointer; font-weight: 600; color: var(--brand-dark); }
+.label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; }
+
+/* Buttons */
+.button {
+  display: inline-block; text-align: center; background: var(--brand); color: #fff; border: 0;
+  border-radius: 999px; padding: 0.75rem 1.4rem; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.button:hover { background: var(--brand-dark); }
+.button.small { padding: 0.45rem 1rem; font-size: 0.9rem; }
+.button.ghost { background: var(--card); color: var(--brand-dark); box-shadow: inset 0 0 0 1.5px var(--brand); }
+.button.ghost:hover { background: var(--brand-soft); }
+.button.danger { background: var(--danger); }
+/* Laaha's yellow action button: square-ish, dark text, Arima */
+.button.sun { background: var(--yellow); color: var(--text); border-radius: 4px; font-family: var(--font-display); font-size: 1.05rem; }
+.button.sun:hover { background: #f0ab00; }
+.button.square { border-radius: 4px; }
+.link { background: none; border: 0; padding: 0; color: var(--brand-dark); font: inherit; font-weight: 600; cursor: pointer; text-align: left; }
+.row.between > .link, .row.between .link { font-size: 0.88rem; }
+.link.title { font-family: var(--font-display); font-size: 1.15rem; color: var(--text); }
+.guide-body { white-space: pre-line; margin: 0.3rem 0; }
+
+.segmented { display: inline-flex; background: var(--card); border: 1.5px solid var(--border); border-radius: 999px; padding: 3px; }
+.segmented button { border: 0; background: none; padding: 0.4rem 1rem; border-radius: 999px; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+.segmented button.on { background: var(--brand); color: #fff; }
+.map { height: 380px; border-radius: var(--radius); border: 1px solid var(--border); }
+
+.thumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.thumbs button { padding: 0; border: 0; background: none; cursor: pointer; }
+.thumbs img { width: 88px; height: 88px; object-fit: cover; border-radius: 0.75rem; border: 1px solid var(--border); }
+.thumbs img.blurred { filter: blur(14px); }
+
+/* Report wizard */
+.progress { display: flex; gap: 0.35rem; }
+.progress span { flex: 1; height: 6px; border-radius: 999px; background: var(--border); }
+.progress span.done { background: var(--brand-bright); }
+.progress span.current { background: linear-gradient(90deg, var(--brand-bright) 50%, var(--border) 50%); }
+.choices { display: flex; flex-direction: column; gap: 0.6rem; }
+.choices.grid { display: grid; grid-template-columns: 1fr 1fr; }
+.choice {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; text-align: left;
+  background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 0.9rem 1rem; font: inherit; color: var(--text); cursor: pointer; box-shadow: var(--shadow);
+}
+.choice:hover { border-color: var(--brand); }
+.choice.on { border-color: var(--brand); background: var(--brand-soft); }
+.choice strong { font-size: 1rem; }
+.choice span { font-size: 0.85rem; color: var(--muted); }
+.choice .icon {
+  width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--brand-soft);
+  display: grid; place-items: center; font-size: 1.2rem;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: 999px;
+  padding: 0.55rem 1.1rem; font: inherit; font-weight: 600; color: var(--text); cursor: pointer;
+}
+.chip.small { padding: 0.35rem 0.85rem; font-size: 0.88rem; }
+.chip:hover { border-color: var(--brand); }
+.chip.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+.upload input[type='file'] {
+  font: inherit; font-weight: 400; padding: 0.75rem; border: 1.5px dashed var(--brand);
+  border-radius: 0.75rem; background: var(--blush);
+}
+.upload input[type='file']::file-selector-button {
+  font: inherit; font-weight: 700; background: var(--brand); color: #fff; border: 0;
+  border-radius: 999px; padding: 0.4rem 0.9rem; margin-right: 0.75rem; cursor: pointer;
+}
+.summary { background: var(--blush); }
+.wizard-nav { margin-top: 0.5rem; }
+.done { align-items: flex-start; }
+.done-icon {
+  width: 4rem; height: 4rem; border-radius: 50%; background: var(--mint); color: var(--mint-ink);
+  display: grid; place-items: center; font-size: 2rem; font-weight: 700;
+}
+
+/* Events */
+.event { flex-direction: row; align-items: flex-start; gap: 0.9rem; }
+.event-date {
+  flex-shrink: 0; width: 3.6rem; padding: 0.45rem 0; border-radius: 0.85rem; text-align: center;
+  display: flex; flex-direction: column; background: var(--brand-soft); color: var(--brand-dark);
+}
+.event-date span { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.event-date strong { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.1; }
+.event.community .event-date { background: var(--mint); color: var(--mint-ink); }
+.event-body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.event-body > strong { font-family: var(--font-display); font-size: 1.15rem; line-height: 1.25; }
+.event-body p { margin: 0.2rem 0 0.3rem; }
+.event-kind { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+
+/* Staff dashboard */
+.staff { max-width: 1000px; margin: 0 auto; padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+.staff.login { max-width: 360px; margin-top: 10vh; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
+.tile, .breakdown {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; box-shadow: var(--shadow);
+}
+.tile strong { font-family: var(--font-display); font-size: 2rem; color: var(--brand-dark); }
+.breakdown { grid-column: span 2; }
+.bar { display: grid; grid-template-columns: 1fr 2fr auto; gap: 0.5rem; align-items: center; font-size: 0.85rem; }
+.bar div { height: 10px; background: var(--brand-bright); border-radius: 999px; }
+.report { border-left: 5px solid #ffbe21; }
+.report.status-verified { border-left-color: #2e9e6f; }
+.report.status-rejected { border-left-color: #9ca3af; }
+.report.status-needs-more-info { border-left-color: #3b8ed0; }
+@media (max-width: 480px) {
+  .breakdown { grid-column: span 1; }
+  .hero h1 { font-size: 2rem; }
+}
