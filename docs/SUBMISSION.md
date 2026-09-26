@@ -163,7 +163,7 @@ A new mobile extension of Laaha: an installable web app that works offline and c
 |---|---|---|
 | Report harm | Anonymous step-by-step report of online or in-person harm | Built |
 | Share from Instagram | One tap from any app's share menu into a quick report | Designed, [clickable mockup](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC) |
-| "Is it true?" chatbot | AI fact-check with sources, linked to reporting | Built |
+| "Is it true?" chatbot | AI fact-check with sources, linked to reporting | Prototype: general AI, not yet grounded in checked Laaha knowledge |
 | Find help | Map and directory of partner organisations | Built (demo partners) |
 | Call | Emergency number, helplines, trusted people | Built (demo helplines) |
 | SOS | Send your GPS location to trusted people by SMS or WhatsApp | Built |
@@ -234,7 +234,9 @@ DMs would go into the same moderation queue as app reports, marked with where th
 
 This is what turns casual scrolling into data collection: a woman who sees a harmful post can report it in two taps without leaving the app she is in.
 
-### 3.3 "Is it true?" chatbot
+### 3.3 "Is it true?" chatbot (prototype)
+
+**Status: prototype.** The chatbot works end to end, but its answers come from a general AI model and the open web. They are not yet guided by moderated, checked Laaha knowledge (see below), so they should be treated as a first opinion, not as Laaha's verified answer.
 
 - She pastes a claim or link, or uploads a screenshot.
 - The assistant (Claude with web search) answers with a verdict (**Likely false / Misleading / Unverified / Likely true**), a confidence level and links to its sources. It says clearly that it can be wrong.
@@ -246,6 +248,17 @@ This is what turns casual scrolling into data collection: a woman who sees a har
 - Without an API key, it gives labelled demo answers so the prototype still works.
 
 Fact-check questions are a second, lower-effort way into the dataset.
+
+**Built on Laaha's own knowledge (next step).** Today the assistant is a general model (Claude) with instructions written for this job: it prefers reputable fact-checkers and official sources, says "Unverified" instead of guessing, and treats the women in a post with respect. The next step is to ground it in knowledge that no general chatbot has:
+
+| Source | What it adds |
+|---|---|
+| Verified Laaha reports | Narratives and posts that moderators have already checked, including known campaigns and repeated links |
+| Partner fact-checks | Debunks from trusted local fact-checkers and partner organisations |
+| Laaha's own content | Guides, advice and referral information from the Laaha website |
+| Local context per country | Languages, the narratives circulating there, and local helplines |
+
+The assistant would search this knowledge first and the open web second, so when a claim has already been checked, she gets Laaha's answer straight away. We would build this by giving the model access to a curated, searchable knowledge base, not by training it on reports. That keeps personal data out of the model, lets moderators update the knowledge the same day, and makes every answer traceable to a source. Moderators' decisions keep feeding the knowledge base, so the assistant gets better as more women report.
 
 ### 3.4 Find help
 
@@ -395,11 +408,12 @@ A 4-minute path through everything you can open. Start the app and the insights 
 
 1. **Share from Instagram and other apps** (quick report), already specified.
 2. Connect the app and the Laaha website: shared content, navigation and entry points.
-3. Encrypt data stored on the phone, and add a PIN lock.
-4. Real staff accounts with roles, an audit log, and a real database.
-5. Onboard real partner organisations and helplines, country by country.
-6. A privacy impact assessment and a published privacy notice before any real data is collected.
-7. Later phases: chat with support workers, a safer emergency tracker (after a security review), and sharing verified trends with platforms and policymakers.
+3. Ground the chatbot in Laaha's own knowledge: verified reports, partner fact-checks and Laaha content.
+4. Encrypt data stored on the phone, and add a PIN lock.
+5. Real staff accounts with roles, an audit log, and a real database.
+6. Onboard real partner organisations and helplines, country by country.
+7. A privacy impact assessment and a published privacy notice before any real data is collected.
+8. Later phases: chat with support workers, a safer emergency tracker (after a security review), and sharing verified trends with platforms and policymakers.
 
 ## 10. Team
 
