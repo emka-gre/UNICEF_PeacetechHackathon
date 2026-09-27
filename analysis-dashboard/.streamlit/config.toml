@@ -1,0 +1,17 @@
+# Look and feel: UNICEF-style palette (cyan primary, white ground). No logos or organisational names are used.
+[server]
+address = "localhost"          # keep the dashboard on this machine; it shows raw hostile posts
+
+[theme]
+base = "light"
+primaryColor = "#1CABE2"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#EEF7FC"
+textColor = "#1D2B3A"
+font = "sans serif"
+
+[theme.sidebar]
+backgroundColor = "#1CABE2"
+secondaryBackgroundColor = "#139BD0"
+textColor = "#FFFFFF"
+primaryColor = "#FFFFFF"
