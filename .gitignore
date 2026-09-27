@@ -1,0 +1,11 @@
+# Data: the raw corpus (~48 GB), intermediates and model outputs are not committed.
+# Download the dataset and run the pipeline to regenerate them (see README).
+data/*
+# ...except the aggregate weekly/monthly counts, so the Overview page works right after cloning.
+# This file holds counts only: no post text and no channel identifiers.
+!data/trends.parquet
+
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
