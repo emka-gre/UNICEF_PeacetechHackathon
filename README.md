@@ -35,10 +35,10 @@ streamlit run app.py  # http://localhost:8501
 ## Team
 
 - Ema Greganova
-- [name2]
-- [name3]
-- [name4]
-- [name5]
-- [name6]
-- [name7]
-- [name8]
+- Mia Reynolds 
+- Paula Dias Leite
+- Cecile
+- Maria Achour
+- Aymane Chokri
+- Elizabeth Mesok
+- Juliette Gress
