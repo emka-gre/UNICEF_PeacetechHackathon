@@ -8,7 +8,10 @@ This is a historical replay for monitoring and analysis, not a forecast, and not
 
 ## Quick start: the dashboard
 
+In the team repository this project lives in the `analysis-dashboard/` folder. Run every command below from that folder, because the dashboard theme in `.streamlit/config.toml` is only picked up there.
+
 ```bash
+cd analysis-dashboard
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
