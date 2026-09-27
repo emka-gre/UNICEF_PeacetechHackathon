@@ -96,7 +96,7 @@ def period_controls(container, trends: pd.DataFrame, freq: str, key: str):
         return start, end, "%b", f"{start:%b %Y} – {end:%b %Y}"
     first = next(p for p in periods if p >= pd.Timestamp("2021-01-01"))
     start, end = container.select_slider("Period", options=periods, value=(first, last), key=f"range_{key}",
-                                         format_func=lambda d: pd.Timestamp(d).strftime("%b %Y"))
+                                         format_func=lambda d: pd.Timestamp(d).strftime("%d %b"))   # no year
     return start, end, None, f"{start:%b %Y} – {end:%b %Y}"
 
 
