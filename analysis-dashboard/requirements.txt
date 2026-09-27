@@ -1,0 +1,11 @@
+# Tested with Python 3.9 on macOS (Apple Silicon, PyTorch MPS)
+pandas==2.3.3
+numpy==2.0.2
+pyarrow==21.0.0
+scikit-learn==1.6.1
+joblib==1.5.3
+torch==2.8.0
+transformers==4.57.6
+sentence-transformers==5.1.2
+sentencepiece==0.2.2
+streamlit==1.50.0

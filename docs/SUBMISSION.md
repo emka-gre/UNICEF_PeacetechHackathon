@@ -41,7 +41,7 @@ You need [Node.js](https://nodejs.org) 20 or newer. The insights page also uses 
 
 ```bash
 git clone https://github.com/emka-gre/UNICEF_PeacetechHackathon.git
-cd UNICEF_PeacetechHackathon
+cd UNICEF_PeacetechHackathon/laaha-app
 npm install
 ```
 
@@ -81,7 +81,7 @@ ANTHROPIC_API_KEY=sk-ant-... npm run dev
 
 ### 2. The insights page
 
-Open a **second** terminal in the project folder and run:
+Open a **second** terminal in the `laaha-app` folder and run:
 
 ```bash
 python3 -m http.server 8080 -d insights-mockup
