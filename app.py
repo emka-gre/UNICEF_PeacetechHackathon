@@ -26,6 +26,11 @@ st.markdown("""
 .laaha-band {background: #1CABE2; color: #FFFFFF; padding: 18px 24px; border-radius: 6px; margin-bottom: 8px;}
 .laaha-band .name {font-size: 1.9rem; font-weight: 700; letter-spacing: 0.01em; line-height: 1.1;}
 .laaha-band .sub {font-size: 0.95rem; opacity: 0.92; margin-top: 4px;}
+/* slightly wider side margins around the main page (default is about 5rem); normal margins on small screens */
+[data-testid="stMainBlockContainer"], .block-container {padding-left: 7rem; padding-right: 7rem;}
+@media (max-width: 900px) {
+  [data-testid="stMainBlockContainer"], .block-container {padding-left: 1rem; padding-right: 1rem;}
+}
 </style>""", unsafe_allow_html=True)
 
 
