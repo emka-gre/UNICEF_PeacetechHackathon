@@ -1,58 +1,36 @@
-# Laaha extension (hackathon prototype)
+# UNICEF PeaceTech Hackathon 2026: Laaha extension
 
-Our answer to the UNICEF challenge at the PeaceTech Hackathon 2026: *How might we protect women and girls in crisis from gendered disinformation?*
+Our answer to the UNICEF challenge at the PeaceTech Hackathon 2026 (EPFL): *How might we protect women and girls in crisis from gendered disinformation?*
 
-Laaha already exists as UNICEF's online space for women and girls. This project extends it in three parts:
+> **Hackathon judges:** start with **[docs/SUBMISSION.md](docs/SUBMISSION.md)**, or read the same summary as a **[web page](https://claude.ai/artifact/JWB8J6KspVsKcXHQNhpqFf)**.
 
-1. **The Laaha app**: a new mobile web app (PWA) where women can report gendered disinformation and online harm, check what's true, find partner organisations, and call helplines or people they trust. It works offline and can disguise itself on the phone.
-2. **New features on the Laaha website**: [to be added].
-3. **Using the collected data**: a moderation dashboard, anonymised export, and an insights page that turns reports into trends and early warnings.
+## What's in this repository
 
-**Prototype: demo data only.** Don't collect real reports with this build.
+| Folder | What it is | Start here |
+|---|---|---|
+| [`laaha-app/`](laaha-app/) | The Laaha app (offline-first PWA for reporting harm and finding help), the staff dashboard, and the insights mockup built on synthetic reports | [`laaha-app/README.md`](laaha-app/README.md) |
+| [`analysis-dashboard/`](analysis-dashboard/) | The Laaha Analysis Dashboard: tracks hostile narratives about Ukrainian women in about 80 million Russian- and Ukrainian-language Telegram posts, by theme and over time, next to (synthetic) Laaha report counts | [`analysis-dashboard/README.md`](analysis-dashboard/README.md) |
+| [`docs/`](docs/) | The submission write-up | [`docs/SUBMISSION.md`](docs/SUBMISSION.md) |
+| [`openspec/`](openspec/) | Specs and plans for the app | |
 
-> **Hackathon judges:** start with **[docs/SUBMISSION.md](docs/SUBMISSION.md)**, or read the same summary as a **[web page](https://claude.ai/artifact/JWB8J6KspVsKcXHQNhpqFf)**. It explains the idea and every feature, and shows how to open the app, the staff dashboard, the insights page and the [clickable mockup of reporting from Instagram](https://claude.ai/artifact/LTgkamJAqkmL6T4jwCgjjC).
+## Run them
 
-## Run it
+**Laaha app** (Node.js 20 or newer):
 
 ```bash
+cd laaha-app
 npm install
-npm run dev
+npm run dev          # app: http://localhost:5173, staff dashboard: http://localhost:5173/staff
 ```
 
-- App: http://localhost:5173
-- Staff dashboard: http://localhost:5173/staff (password `laaha-demo`, change with `STAFF_PASSWORD`)
-
-The "Is it true?" assistant uses Claude. Without a key it gives labelled demo answers. To connect it:
+**Analysis dashboard** (Python 3.9 or newer). The Overview page works straight away; the other pages need the Telegram dataset and pipeline described in its README.
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-... npm run dev
+cd analysis-dashboard
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py  # http://localhost:8501
 ```
-
-Reports are saved to `server/data/db.json`. Delete that file to start fresh.
-
-To try it as an installable offline app, build it and serve it from one port:
-
-```bash
-npm run build
-npm start   # http://localhost:3001
-```
-
-## What's in it
-
-| Feature | Where |
-|---|---|
-| Report harm: link, screenshots (metadata stripped on the phone), description, consent choices, optional email | `src/pages/Report.tsx` |
-| Offline queue, sent automatically when back online, no duplicates | `src/lib/queue.ts` |
-| Find help: search, filters, map, "Near me" (location stays on the phone) | `src/pages/Hubs.tsx` |
-| Guides and emergency contacts, both usable offline | `src/pages/Guides.tsx`, `src/pages/Contacts.tsx` |
-| Quick exit (✕ button or Esc twice), discreet mode, delete data on this phone | `src/lib/safety.ts`, `src/pages/Settings.tsx` |
-| Moderation: filter, verify, tag, stats, anonymised CSV export | `src/pages/Staff.tsx`, `server/index.ts` |
-
-Demo partners and guides are in `server/seed.ts`.
-
-## Not in the prototype
-
-Encryption of data on the phone, PIN lock, real staff accounts, an audit log, and a real database. See `openspec/changes/add-nooha-app-foundation/tasks-full.md` for the full plan.
 
 ## Team
 
